@@ -337,29 +337,10 @@ src/deepseek_key_panel/
 详见 [CONTRIBUTING.md](CONTRIBUTING.md)。
 
 ---
-
-## 相关项目
-
-同类的开源实现，各有取舍，一并列出：
-
-- [Joyi-code/DeepSeekMonitorWindows](https://github.com/Joyi-code/DeepSeekMonitorWindows) —
-  Tauri + Rust 桌面监控，功能最全，但需要 Rust 工具链才能自己构建
-- [crazywoola/dsh-balance](https://github.com/crazywoola/dsh-balance)、
-  [songoao25/dsh-bottom-info-bar](https://github.com/songoao25/dsh-bottom-info-bar)、
-  [Han-1413141/dsh-cost-meter](https://github.com/Han-1413141/dsh-cost-meter)、
-  [Suiwan/whale-purse](https://github.com/Suiwan/whale-purse) — DeepSeek Harness 插件
-- [zhuifengshaonian6/api-balance-checker-extension](https://github.com/zhuifengshaonian6/api-balance-checker-extension) —
-  浏览器扩展，面向多家中转站
-- [CWNU-Open-Source-Community/DeepSeekMeter](https://github.com/CWNU-Open-Source-Community/DeepSeekMeter) —
-  macOS 菜单栏版
-
-本项目的用量接口调用方式参考了 DeepSeekMonitorWindows，但代码是独立实现的。
-
----
-
 ## 许可
 
 [MIT](LICENSE) © 2026 xiaoniao
 
 本项目与 DeepSeek 官方无关，未获其背书。DeepSeek 平台页面结构与接口可能随时变动，
 本项目不保证长期可用。
+问题漏洞请加入群组https://t.me/qianghuntaolun
