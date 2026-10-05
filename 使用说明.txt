@@ -109,29 +109,6 @@ DeepSeekKeyPanel-portable.zip 是备选方案。
   这两个文件等同于你的 Key 本身，别放网盘、别发人
 · 截图分享前记得打码
 
-
-八、发布到 GitHub
------------------
-deepseek-key-panel 文件夹已经是一个初始化好的 git 仓库，提交也做完了。
-
-    cd deepseek-key-panel
-    git remote add origin https://github.com/你的用户名/deepseek-key-panel.git
-    git push -u origin main
-
-发版本（GitHub 会自动构建 exe 并挂到 Release 上）：
-
-    git tag v1.2.0
-    git push origin v1.2.0
-
-注意：README.md、pyproject.toml 等文件里写的是
-xiaoniao/deepseek-key-panel。如果你的 GitHub 用户名不是 xiaoniao，
-批量替换一下再提交。
-
-改提交者信息：
-    git config user.email "你的邮箱"
-    git commit --amend --reset-author
-
-
 九、想改代码
 ------------
 需要 Python 3.8+（只改前端的话再加个 Node.js）。
