@@ -1,0 +1,3172 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DeepSeek Key 面板</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%230e1117'/><path d='M23 19l7-5v10z' fill='%232f6fe0'/><ellipse cx='14' cy='19' rx='10' ry='5.6' fill='%234d8dff'/><circle cx='9' cy='18' r='2.2' fill='%23fff'/><circle cx='9.6' cy='18.3' r='0.9' fill='%230e1117'/><circle cx='8' cy='9' r='1.6' fill='%237fb0ff'/><circle cx='11' cy='6.4' r='1.2' fill='%237fb0ff'/></svg>">
+<style>
+:root{
+  --bg:#0e1117; --bg2:#161b22; --bg3:#1c2230; --line:#2a3242;
+  --fg:#e6edf3; --fg2:#9aa7b8; --fg3:#6b7a8f;
+  --accent:#4d8dff; --accent2:#2f6fe0;
+  --ok:#3fb950; --warn:#d29922; --bad:#f85149; --info:#58a6ff; --mute:#8b949e;
+  --radius:10px; --shadow:0 6px 24px rgba(0,0,0,.35);
+}
+html[data-theme="light"]{
+  --bg:#f4f6fa; --bg2:#fff; --bg3:#eef1f6; --line:#d8dee8;
+  --fg:#1b2330; --fg2:#5b6879; --fg3:#8b97a8;
+  --shadow:0 4px 18px rgba(20,30,50,.10);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg); color:var(--fg);
+  font:14px/1.55 "Segoe UI","Microsoft YaHei",system-ui,-apple-system,sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--accent)}
+code,kbd{font-family:ui-monospace,Consolas,"Cascadia Mono",monospace;font-size:12.5px}
+
+/* ---------- 布局 ---------- */
+.wrap{max-width:1400px;margin:0 auto;padding:18px 20px 80px}
+header.top{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:14px}
+.brand{display:flex;align-items:center;gap:10px;font-size:19px;font-weight:650;letter-spacing:.2px}
+.brand .logo{font-size:24px}
+.spacer{flex:1}
+.badge{
+  display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;
+  font-size:12px;border:1px solid var(--line);background:var(--bg2);color:var(--fg2);white-space:nowrap
+}
+.badge .dot{width:7px;height:7px;border-radius:50%;background:var(--mute)}
+.badge.on .dot{background:var(--ok);box-shadow:0 0 8px var(--ok)}
+.badge.off .dot{background:var(--bad)}
+
+/* ---------- 标签页 ---------- */
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:18px;flex-wrap:wrap}
+.tabs button{
+  background:none;border:none;border-bottom:2px solid transparent;padding:9px 15px;
+  cursor:pointer;color:var(--fg2);font-weight:550;border-radius:6px 6px 0 0
+}
+.tabs button:hover{color:var(--fg);background:var(--bg2)}
+.tabs button.active{color:var(--accent);border-bottom-color:var(--accent)}
+section.tab{display:none}
+section.tab.active{display:block;animation:fade .18s ease}
+@keyframes fade{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
+
+/* ---------- 卡片 ---------- */
+.card{background:var(--bg2);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:16px}
+.card>h3{margin:0 0 12px;font-size:14.5px;font-weight:620;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.card>h3 .hint{font-weight:400;font-size:12.5px;color:var(--fg3)}
+.grid{display:grid;gap:12px}
+.g4{grid-template-columns:repeat(auto-fit,minmax(160px,1fr))}
+.g2{grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
+
+.stat{background:var(--bg3);border:1px solid var(--line);border-radius:9px;padding:12px 14px}
+.stat .k{font-size:12px;color:var(--fg3);margin-bottom:5px;letter-spacing:.3px}
+.stat .v{font-size:21px;font-weight:660;font-variant-numeric:tabular-nums;line-height:1.2}
+.stat .s{font-size:11.5px;color:var(--fg3);margin-top:3px}
+.stat.ok .v{color:var(--ok)} .stat.bad .v{color:var(--bad)} .stat.warn .v{color:var(--warn)}
+
+/* ---------- 按钮/输入 ---------- */
+.btn{
+  display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:8px;cursor:pointer;
+  border:1px solid var(--line);background:var(--bg3);color:var(--fg);font-weight:540;transition:.13s;white-space:nowrap
+}
+.btn:hover:not(:disabled){border-color:var(--fg3);transform:translateY(-1px)}
+.btn:disabled{opacity:.42;cursor:not-allowed}
+.btn.primary{background:var(--accent2);border-color:var(--accent2);color:#fff}
+.btn.primary:hover:not(:disabled){background:var(--accent)}
+.btn.danger{color:var(--bad);border-color:rgba(248,81,73,.4)}
+.btn.sm{padding:3px 9px;font-size:12.5px;border-radius:6px}
+.btn.ghost{background:transparent}
+.row{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+input[type=text],input[type=password],input[type=number],select,textarea{
+  background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:7px 10px;outline:none;width:100%
+}
+input:focus,select:focus,textarea:focus{border-color:var(--accent)}
+textarea{resize:vertical;min-height:96px;font-family:ui-monospace,Consolas,monospace;font-size:12.5px;line-height:1.6}
+label.f{display:block;margin-bottom:12px}
+label.f>.lb{display:block;font-size:12.5px;color:var(--fg2);margin-bottom:5px}
+label.f>.tip{font-size:11.5px;color:var(--fg3);margin-top:4px;line-height:1.5}
+label.chk{display:flex;align-items:flex-start;gap:8px;cursor:pointer;margin-bottom:9px;font-size:13px}
+label.chk input{margin-top:3px;width:15px;height:15px;flex:none;accent-color:var(--accent)}
+
+/* ---------- 表格 ---------- */
+.tw{overflow:auto;border:1px solid var(--line);border-radius:9px;max-height:640px}
+table{border-collapse:separate;border-spacing:0;width:100%;font-size:13px}
+th,td{padding:9px 11px;text-align:left;border-bottom:1px solid var(--line);vertical-align:middle}
+th{
+  background:var(--bg3);position:sticky;top:0;z-index:2;font-weight:600;font-size:12px;
+  color:var(--fg2);letter-spacing:.3px;white-space:nowrap
+}
+tbody tr:hover{background:var(--bg3)}
+tbody tr:last-child td{border-bottom:none}
+td.num{font-variant-numeric:tabular-nums;text-align:right}
+.mono{font-family:ui-monospace,Consolas,monospace;font-size:12.5px}
+.muted{color:var(--fg3)}
+.empty{padding:38px 16px;text-align:center;color:var(--fg3);font-size:13.5px}
+
+/* ---------- 状态 ---------- */
+.pill{display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:999px;font-size:12px;font-weight:550;white-space:nowrap}
+.pill.ok{background:rgba(63,185,80,.15);color:var(--ok)}
+.pill.warn{background:rgba(210,153,34,.16);color:var(--warn)}
+.pill.bad{background:rgba(248,81,73,.15);color:var(--bad)}
+.pill.info{background:rgba(88,166,255,.15);color:var(--info)}
+.pill.mute{background:var(--bg3);color:var(--fg3)}
+.pill.run{background:rgba(88,166,255,.15);color:var(--info)}
+.spin{display:inline-block;width:11px;height:11px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:sp .7s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+/* ---------- 通知 ---------- */
+.notice{border-radius:9px;padding:11px 14px;margin-bottom:14px;font-size:13px;display:flex;gap:10px;align-items:flex-start;border:1px solid}
+.notice.info{background:rgba(88,166,255,.09);border-color:rgba(88,166,255,.32);color:var(--fg)}
+.notice.warn{background:rgba(210,153,34,.10);border-color:rgba(210,153,34,.35)}
+.notice.bad{background:rgba(248,81,73,.10);border-color:rgba(248,81,73,.35)}
+.notice.ok{background:rgba(63,185,80,.10);border-color:rgba(63,185,80,.32)}
+.notice .ico{font-size:15px;line-height:1.3}
+.notice b{font-weight:640}
+
+/* ---------- 杂项 ---------- */
+.help{font-size:12.5px;color:var(--fg2);line-height:1.75}
+.help ul{margin:6px 0;padding-left:19px}
+.help li{margin-bottom:4px}
+.kv{display:flex;gap:8px;padding:4px 0;border-bottom:1px dashed var(--line);font-size:12.5px}
+.kv:last-child{border:none}
+.kv .kk{color:var(--fg3);min-width:96px}
+pre.snippet{
+  background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:11px 13px;overflow:auto;
+  font-size:12px;line-height:1.65;margin:8px 0;white-space:pre-wrap;word-break:break-all
+}
+canvas{max-width:100%;display:block}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--fg2);margin-top:8px}
+.legend i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.toolbar .grow{flex:1;min-width:140px}
+details.acc{border:1px solid var(--line);border-radius:9px;padding:0;margin-bottom:14px;background:var(--bg2)}
+details.acc>summary{padding:11px 15px;cursor:pointer;font-weight:560;font-size:13.5px;list-style:none;display:flex;align-items:center;gap:8px}
+details.acc>summary::-webkit-details-marker{display:none}
+details.acc>summary::before{content:"▸";transition:.15s;color:var(--fg3)}
+details.acc[open]>summary::before{transform:rotate(90deg)}
+details.acc>.body{padding:4px 15px 16px;border-top:1px solid var(--line)}
+.tag{font-size:11px;padding:1px 7px;border-radius:5px;background:var(--bg3);color:var(--fg3);border:1px solid var(--line)}
+.toast{
+  position:fixed;left:50%;bottom:26px;transform:translateX(-50%);z-index:99;
+  background:var(--bg2);border:1px solid var(--line);box-shadow:var(--shadow);border-radius:9px;
+  padding:10px 18px;font-size:13px;opacity:0;pointer-events:none;transition:.22s
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(-6px)}
+
+/* ---------- 标签 ---------- */
+.tagchip{
+  display:inline-block;font-size:11px;padding:1px 7px;border-radius:5px;margin:1px 3px 1px 0;
+  background:rgba(88,166,255,.13);color:var(--info);border:1px solid rgba(88,166,255,.28);white-space:nowrap
+}
+.tagchip.plain{background:var(--bg3);color:var(--fg3);border-color:var(--line)}
+
+/* ---------- 余额预警 ---------- */
+tbody tr.row-warn{background:rgba(210,153,34,.075)}
+tbody tr.row-warn:hover{background:rgba(210,153,34,.13)}
+tbody tr.row-warn td:first-child{box-shadow:inset 3px 0 0 var(--warn)}
+tbody tr.row-bad td:first-child{box-shadow:inset 3px 0 0 var(--bad)}
+.live{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;margin-top:3px;white-space:nowrap}
+.live.ok{color:var(--ok)} .live.bad{color:var(--bad)} .live.warn{color:var(--warn)} .live.mute{color:var(--fg3)}
+.warnline{color:var(--warn);font-weight:600}
+
+/* ---------- 弹窗 ---------- */
+.mask{
+  position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;
+  display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(2px)
+}
+.mask.show{display:flex}
+.modal{
+  background:var(--bg2);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);
+  width:100%;max-width:520px;max-height:88vh;overflow:auto;animation:pop .16s ease
+}
+@keyframes pop{from{opacity:0;transform:scale(.97) translateY(6px)}to{opacity:1;transform:none}}
+.modal>h3{margin:0;padding:15px 18px;border-bottom:1px solid var(--line);font-size:15px;font-weight:620}
+.modal>.mbody{padding:16px 18px}
+.modal>.mfoot{
+  padding:13px 18px;border-top:1px solid var(--line);display:flex;gap:9px;justify-content:flex-end;
+  position:sticky;bottom:0;background:var(--bg2)
+}
+.tagbox{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.tagpick{
+  font-size:12px;padding:3px 9px;border-radius:999px;cursor:pointer;user-select:none;
+  border:1px solid var(--line);background:var(--bg3);color:var(--fg2)
+}
+.tagpick:hover{border-color:var(--fg3)}
+.tagpick.on{background:rgba(88,166,255,.16);border-color:var(--accent);color:var(--accent)}
+
+/* ---------- 分段开关（语言切换） ---------- */
+.seg{
+  display:inline-flex;align-items:center;gap:2px;padding:2px;border-radius:999px;
+  background:var(--bg3);border:1px solid var(--line);flex:none
+}
+.seg button{
+  border:none;background:transparent;color:var(--fg2);cursor:pointer;
+  padding:2px 11px;border-radius:999px;font-size:12.5px;font-weight:560;
+  line-height:1.6;transition:background .15s,color .15s;white-space:nowrap
+}
+.seg button:hover{color:var(--fg)}
+.seg button.on{background:var(--fg);color:var(--bg);box-shadow:0 1px 3px rgba(0,0,0,.28)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="brand"><span class="logo">🐋</span><span>DeepSeek Key 面板</span></div>
+    <span class="badge" id="badge-mode"><span class="dot"></span><span id="badge-mode-t">检测中…</span></span>
+    <span class="badge" id="badge-relay" title="本地中转服务状态"><span class="dot"></span><span id="badge-relay-t">中转未连接</span></span>
+    <span class="badge" id="badge-lock" title="本地数据加密状态"><span class="dot"></span><span id="badge-lock-t">…</span></span>
+    <span class="spacer"></span>
+    <div class="seg" id="lang-seg" role="group" aria-label="界面语言 / UI language">
+      <button type="button" data-setlang="zh" title="中文">中文</button>
+      <button type="button" data-setlang="en" title="English">EN</button>
+    </div>
+    <button class="btn sm ghost" id="btn-theme">🌓 主题</button>
+    <button class="btn sm ghost" id="btn-lock" style="display:none" title="立即锁定并清除内存中的明文">🔒</button>
+    <button class="btn sm ghost" id="btn-quit" style="display:none" title="关闭本地服务并退出程序">⏻ 退出</button>
+  </header>
+
+  <div id="notice"></div>
+
+  <nav class="tabs">
+    <button data-tab="keys" class="active">Key 管理与余额</button>
+    <button data-tab="usage">用量与消耗</button>
+    <button data-tab="settings">设置与诊断</button>
+  </nav>
+
+  <!-- ===================== TAB: KEYS ===================== -->
+  <section class="tab active" id="tab-keys">
+
+    <details class="acc" id="import-acc">
+      <summary>📥 导入 Key（点开粘贴 / 拖入文件）</summary>
+      <div class="body">
+        <label class="f">
+          <span class="lb">粘贴区 —— 每行一个，支持 <code>Key</code> / <code>名称,Key</code> / <code>Key,备注</code>（逗号、制表符、分号、竖线均可分隔）</span>
+          <textarea id="import-text" placeholder="sk-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+主力号,sk-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+sk-cccccccccccccccccccccccccccccccc,备用（9月充值）"></textarea>
+          <span class="tip">自动识别 <code>sk-</code> 开头的串、去掉 <code>Bearer </code> 前缀、自动去重；<code>#</code> 开头的行视为注释。</span>
+        </label>
+        <div class="row" style="margin-bottom:12px">
+          <button class="btn primary" id="btn-import-text">导入粘贴内容</button>
+          <button class="btn" id="btn-import-file">📁 选择文件 (.txt/.csv/.json)</button>
+          <input type="file" id="file-input" accept=".txt,.csv,.json,.log" multiple hidden>
+          <button class="btn ghost" id="btn-import-demo">填入示例</button>
+          <span class="muted" id="import-info"></span>
+        </div>
+        <div class="help" style="border-top:1px dashed var(--line);padding-top:10px">
+          <b>JSON 也支持</b>：<code>[{"name":"主力","key":"sk-..."}]</code>、
+          <code>{"keys":[...]}</code>、<code>{"apiKey":"sk-..."}</code>、或纯字符串数组。
+          <br><b>也可以直接把文件拖到本页任意位置。</b>
+        </div>
+      </div>
+    </details>
+
+    <div class="grid g4" id="stats" style="margin-bottom:16px"></div>
+
+    <div class="toolbar">
+      <button class="btn primary" id="btn-query-all">⚡ 查询全部余额</button>
+      <button class="btn" id="btn-query-sel">查询选中</button>
+      <button class="btn" id="btn-probe-all" title="GET /models：验证 Key 能否真正访问 API，不消耗 token">🔬 实测全部</button>
+      <button class="btn" id="btn-probe-sel">实测选中</button>
+      <button class="btn danger" id="btn-stop" disabled>■ 停止</button>
+      <span style="flex:1"></span>
+      <select id="filter-status" style="width:auto">
+        <option value="all">全部状态</option>
+        <option value="ok">✅ 可用</option>
+        <option value="warn">⚠️ 异常</option>
+        <option value="lowbal">🔻 余额预警</option>
+        <option value="liveok">🔬 实测通过</option>
+        <option value="livefail">🔬 实测不通过</option>
+        <option value="tagged">🏷 有标签</option>
+        <option value="unchecked">◻ 未查询</option>
+      </select>
+      <select id="filter-tag" style="width:auto"><option value="">全部标签</option></select>
+      <input type="text" id="filter-text" placeholder="搜索名称 / Key / 备注 / 标签…" style="width:210px">
+    </div>
+    <div class="toolbar">
+      <span class="muted" style="font-size:12.5px">批量选择</span>
+      <button class="btn sm ghost" id="btn-sel-ok">选可用的</button>
+      <button class="btn sm ghost" id="btn-sel-invalid">选无效的</button>
+      <button class="btn sm ghost" id="btn-sel-low">选预警的</button>
+      <button class="btn sm ghost" id="btn-sel-none">取消选择</button>
+      <span style="flex:1"></span>
+      <button class="btn sm" id="btn-export-csv">导出 CSV</button>
+      <button class="btn sm" id="btn-export-json">导出 JSON</button>
+      <button class="btn sm" id="btn-export-keys">导出纯 Key</button>
+      <button class="btn sm danger" id="btn-clean-invalid">清理无效</button>
+      <button class="btn sm danger" id="btn-clear-keys">清空列表</button>
+    </div>
+
+    <div class="tw">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:34px"><input type="checkbox" id="check-all" style="width:15px;height:15px;accent-color:var(--accent)"></th>
+            <th style="width:170px">名称 / 标签</th>
+            <th style="width:210px">API Key</th>
+            <th style="width:170px">状态 / 实测</th>
+            <th style="width:230px">余额</th>
+            <th style="width:140px">更新时间</th>
+            <th style="width:220px">操作</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"><tr><td colspan="7" class="empty">还没有 Key。点开上面「导入 Key」开始。</td></tr></tbody>
+      </table>
+    </div>
+    <div class="help" style="margin-top:9px" id="table-foot"></div>
+  </section>
+
+  <!-- ===================== TAB: USAGE ===================== -->
+  <section class="tab" id="tab-usage">
+
+    <div class="card">
+      <h3>📈 余额消耗（本地快照推算）<span class="hint">不需要额外凭据，每次查询余额时自动记录</span></h3>
+      <div class="row" style="margin-bottom:12px">
+        <select id="chart-key" style="width:auto;min-width:220px"></select>
+        <select id="chart-range" style="width:auto">
+          <option value="7">近 7 天</option>
+          <option value="30" selected>近 30 天</option>
+          <option value="90">近 90 天</option>
+          <option value="0">全部</option>
+        </select>
+      </div>
+      <div class="grid g4" id="spend-stats" style="margin-bottom:14px"></div>
+      <canvas id="chart-balance" height="240"></canvas>
+      <div class="legend"><span><i style="background:var(--accent)"></i>余额曲线</span><span><i style="background:var(--ok)"></i>充值点（余额上升）</span></div>
+      <div class="help" style="margin-top:10px">
+        原理：每次成功查询会记录一条「时间 + 余额」快照，消耗 = 相邻两次快照中余额下降的部分之和，充值 = 上升部分之和。
+        <b>快照只保存在本机浏览器里</b>，换浏览器/清缓存就会丢。想要权威用量请看下面的官方接口。
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>🧾 官方用量接口（Token / 请求数 / 费用）<span class="hint">需要本地中转 + DeepSeek 网页登录 Token</span></h3>
+      <div id="usage-gate"></div>
+
+      <div class="grid g2" style="margin-bottom:6px">
+        <label class="f">
+          <span class="lb">DeepSeek 平台登录 Token（不是 API Key）</span>
+          <input type="password" id="usage-token" placeholder="粘贴 userToken，或用下面的控制台脚本一键提取">
+          <span class="tip">它来自 <code>platform.deepseek.com</code> 的登录态，有效期有限，过期后重新提取即可。</span>
+        </label>
+        <div>
+          <label class="f">
+            <span class="lb">查询月份</span>
+            <div class="row">
+              <select id="usage-month" style="width:auto"></select>
+              <button class="btn primary" id="btn-usage-fetch">拉取官方用量</button>
+              <button class="btn" id="btn-usage-compare">对比最近 3 个月</button>
+              <button class="btn" id="btn-usage-csv">导出 CSV</button>
+              <button class="btn ghost" id="btn-usage-clear">清除结果</button>
+            </div>
+          </label>
+          <label class="chk"><input type="checkbox" id="usage-remember"> <span>记住这个 Token（存本机 localStorage，仅方便自己，公共电脑别勾）</span></label>
+        </div>
+      </div>
+
+      <details class="acc" style="margin-top:6px">
+        <summary>❓ 怎么拿到这个 Token（30 秒）</summary>
+        <div class="body">
+          <div class="help">
+            <b>方法一（推荐，自动复制）</b>：在浏览器登录 <a href="https://platform.deepseek.com" target="_blank" rel="noreferrer">platform.deepseek.com</a>，
+            按 <kbd>F12</kbd> 打开控制台，粘贴下面这段并回车，Token 会自动进剪贴板，回来直接 Ctrl+V：
+          </div>
+          <pre class="snippet" id="snippet-token"></pre>
+          <div class="row"><button class="btn sm" data-copy="#snippet-token">复制脚本</button></div>
+          <div class="help" style="margin-top:12px">
+            <b>方法二（手动）</b>：<kbd>F12</kbd> → <b>Application / 应用</b> → <b>Local Storage</b> → <code>https://platform.deepseek.com</code> →
+            找到 <code>userToken</code>，复制它的值。值可能是 <code>{"token":"xxx","value":"xxx"}</code> 这样一段 JSON，
+            <b>整段粘过来也行</b>，面板会自动把里面的 Token 抠出来。
+          </div>
+        </div>
+      </details>
+
+      <div id="usage-compare"></div>
+      <div id="usage-out"></div>
+    </div>
+  </section>
+
+  <!-- ===================== TAB: SETTINGS ===================== -->
+  <section class="tab" id="tab-settings">
+
+    <div class="card">
+      <h3>🔌 连接方式</h3>
+      <label class="f">
+        <span class="lb">查询通道</span>
+        <select id="set-mode">
+          <option value="auto">自动（优先用本地中转，不可用则直连）</option>
+          <option value="relay">仅本地中转（可解锁官方用量接口）</option>
+          <option value="direct">仅浏览器直连（只能查余额）</option>
+        </select>
+        <span class="tip">余额接口支持跨域，浏览器可直连；官方用量接口没有 CORS 头，<b>必须</b>经本地中转。</span>
+      </label>
+      <label class="f">
+        <span class="lb">本地中转地址</span>
+        <input type="text" id="set-relay" placeholder="http://127.0.0.1:8787">
+        <span class="tip">启动方式：双击 <code>启动面板.cmd</code>，或命令行 <code>python run_panel.py</code>。端口会自动向上探测 8787–8798。</span>
+      </label>
+      <div class="row"><button class="btn" id="btn-redetect">🔍 重新检测中转</button></div>
+    </div>
+
+    <div class="card">
+      <h3>⚙️ 查询参数</h3>
+      <div class="grid g2">
+        <label class="f"><span class="lb">并发数</span>
+          <input type="number" id="set-conc" min="1" max="16" step="1">
+          <span class="tip">同时查询多少个 Key，官方接口建议不超过 4–6。</span>
+        </label>
+        <label class="f"><span class="lb">单次超时（秒）</span>
+          <input type="number" id="set-timeout" min="3" max="120" step="1">
+        </label>
+        <label class="f"><span class="lb">失败重试次数</span>
+          <input type="number" id="set-retries" min="0" max="5" step="1">
+        </label>
+        <label class="f"><span class="lb">自动刷新</span>
+          <select id="set-auto">
+            <option value="0">关闭</option>
+            <option value="60">每 1 分钟</option>
+            <option value="300">每 5 分钟</option>
+            <option value="900">每 15 分钟</option>
+            <option value="1800">每 30 分钟</option>
+            <option value="3600">每 1 小时</option>
+          </select>
+        </label>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>🔻 余额预警<span class="hint">跌破阈值时高亮该行，并可发浏览器通知</span></h3>
+      <div class="grid g2">
+        <label class="f"><span class="lb">预警阈值（0 = 关闭）</span>
+          <input type="number" id="set-warn" min="0" step="1" placeholder="例如 10">
+          <span class="tip">对所有币种用同一个阈值。低于它的 Key 会在表格里高亮，汇总卡也会计数。</span>
+        </label>
+        <div>
+          <label class="chk"><input type="checkbox" id="set-notify">
+            <span>跌破阈值时发浏览器通知（需授权；页面开着才有效）</span></label>
+          <div class="row"><button class="btn sm" id="btn-notify-test">发一条测试通知</button></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>🔬 可用性实测<span class="hint">余额接口能通 ≠ 这个 Key 真的能用</span></h3>
+      <label class="chk"><input type="checkbox" id="set-probe-deep">
+        <span><b>深度实测</b>：每个 Key 真实调用一次 chat completions（max_tokens=1）。
+        会产生极少量费用，但能确认「真的能调模型」。不勾选则只查 <code>/models</code> ——
+        验证鉴权与 API 可达性，<b>不消耗任何 token</b>。</span></label>
+      <label class="f" style="max-width:300px"><span class="lb">深度实测使用的模型</span>
+        <input type="text" id="set-probe-model" placeholder="deepseek-chat">
+        <span class="tip">不确定就保持默认 <code>deepseek-chat</code>。若报「模型不存在」，换成你在用的模型名。</span>
+      </label>
+    </div>
+
+    <div class="card">
+      <h3>💾 备份与恢复<span class="hint">完整状态的导入导出</span></h3>
+      <div class="row">
+        <button class="btn" id="btn-backup">导出完整备份 (JSON)</button>
+        <button class="btn" id="btn-restore">从备份恢复…</button>
+        <input type="file" id="restore-input" accept=".json,application/json" hidden>
+        <button class="btn" id="btn-export-keys2">导出纯 Key 列表</button>
+      </div>
+      <div class="help" style="margin-top:12px">
+        <b>完整备份</b>包含 Key（明文）、标签、备注、设置、余额快照历史、平台用量结果 —— 换电脑或换浏览器时导出再导入即可完整迁移。
+        <br><b>纯 Key 列表</b>只导出当前筛选结果的 Key，一行一个，方便喂给别的工具。
+        <br><span class="warnline">两个文件都是明文的</span>，等同于你的 Key 本身，别丢网盘也别发人。
+      </div>
+    </div>
+
+    <div class="card" id="card-enc">
+      <h3>🔐 数据加密<span class="hint">Key、余额快照、用量记录、平台 Token 都加密后才写入本机</span></h3>
+      <div class="grid g2" style="align-items:start">
+        <div>
+          <div class="kv"><span class="kk">当前状态</span><span id="enc-state">—</span></div>
+          <div class="kv"><span class="kk">密码提示</span><span id="enc-hint" class="muted">—</span></div>
+        </div>
+        <div class="row">
+          <button class="btn primary" id="btn-enc-set">设置主密码</button>
+          <button class="btn" id="btn-enc-change">修改主密码</button>
+          <button class="btn" id="btn-enc-lock">立即锁定</button>
+          <button class="btn danger" id="btn-enc-off">关闭加密</button>
+        </div>
+      </div>
+      <div id="enc-note" style="margin-top:12px"></div>
+      <div class="help" style="margin-top:12px;border-top:1px dashed var(--line);padding-top:12px">
+        加密方式：<code>AES-GCM-256</code>，密钥由主密码经 <code>PBKDF2-SHA256</code>（25 万次迭代）派生，
+        每条记录使用随机盐与随机 IV。密码本身<b>不写入任何地方</b>；勾选会话保持时只存在
+        <code>sessionStorage</code>，关掉标签页即失效。
+        <br><span class="warnline">忘记密码等于数据永久丢失</span>，没有任何后门可以恢复。
+      </div>
+    </div>
+
+    <div class="card" id="card-file" style="display:none">
+      <h3>📁 本地数据文件<span class="hint">加密后保存到磁盘，打开面板自动解密</span></h3>
+      <div class="kv"><span class="kk">存储位置</span><span id="fs-path" class="mono" style="word-break:break-all">—</span></div>
+      <div class="kv"><span class="kk">状态</span><span id="fs-state">—</span></div>
+      <div class="row" style="margin-top:12px">
+        <button class="btn danger" id="btn-fs-wipe">删除数据文件</button>
+      </div>
+      <div class="help" style="margin-top:12px;border-top:1px dashed var(--line);padding-top:12px">
+        用 Windows DPAPI 加密：密钥由你的 Windows 账户派生，<b>只有这台机器的这个账户能解开</b>。好处是打开面板自动解密、不用输密码；代价是这个文件拷到别的电脑上就是废数据。
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>🔐 安全与数据</h3>
+      <label class="chk"><input type="checkbox" id="set-remember"> <span>在<b>未启用加密</b>时，也把 Key 以明文保存在本机浏览器。<b>不勾选则只留在内存，刷新即消失</b>（强烈建议改用上面的加密存储）</span></label>
+      <label class="chk"><input type="checkbox" id="set-reveal"> <span>表格里默认明文显示 Key（默认打码为 <code>sk-abc…wxyz</code>）</span></label>
+      <label class="chk"><input type="checkbox" id="set-export-full"> <span>导出 CSV/JSON 时包含完整 Key（默认打码，便于安全分享）</span></label>
+      <div class="row" style="margin-top:12px">
+        <button class="btn danger" id="btn-wipe">🗑 清除全部本机数据</button>
+        <span class="muted" id="store-info"></span>
+      </div>
+      <div class="help" style="margin-top:14px;border-top:1px dashed var(--line);padding-top:12px">
+        <b>这个工具怎么处理你的 Key：</b>
+        <ul>
+          <li>所有请求都由<b>你的浏览器或你本机的中转进程</b>直接发往 <code>api.deepseek.com</code> / <code>platform.deepseek.com</code>，没有任何第三方服务器参与。</li>
+          <li>本地服务只监听 <code>127.0.0.1</code>，只允许转发到上面两个域名，不记录也不落盘 Key。代码就在 <code>src/deepseek_key_panel/server.py</code>，可以直接审。</li>
+          <li>小心截图分享：Key 和平台 Token 都在页面上，打码功能默认是开的。</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>🩺 连接自检</h3>
+      <div class="row"><button class="btn primary" id="btn-diagnose">开始自检</button></div>
+      <div id="diag-out" style="margin-top:12px"></div>
+    </div>
+
+    <div class="card">
+      <h3>ℹ️ 关于<span class="hint">v1.0.0</span></h3>
+      <div class="help">
+        <b>官方接口能力（已实测确认）：</b>
+        <ul>
+          <li><code>GET https://api.deepseek.com/user/balance</code> —— 用 API Key 查余额，返回 <code>is_available</code> 与各币种的总额/赠送/充值余额。支持跨域。</li>
+          <li><code>GET https://platform.deepseek.com/api/v0/usage/amount?month=&amp;year=</code> 与 <code>.../cost</code> —— 查真实 Token 用量与费用。需要用<b>网页登录 Token</b>，且没有 CORS 头，必须经本地中转。</li>
+          <li>DeepSeek <b>没有</b>提供「用 API Key 查历史调用量」的接口 —— 官方文档只有余额。所以任何声称能直接用 API Key 出用量的工具，要么在爬网页登录态，要么在本地自己记账。</li>
+        </ul>
+        <b>相关开源项目（本面板未使用其代码，仅作参考）：</b>
+        <ul>
+          <li><a href="https://github.com/Joyi-code/DeepSeekMonitorWindows" target="_blank" rel="noreferrer">DeepSeekMonitorWindows</a> —— Tauri/Rust 桌面监控，用量接口的调用方式参考了它</li>
+          <li><a href="https://github.com/crazywoola/dsh-balance" target="_blank" rel="noreferrer">dsh-balance</a> / <a href="https://github.com/songoao25/dsh-bottom-info-bar" target="_blank" rel="noreferrer">dsh-bottom-info-bar</a> / <a href="https://github.com/Han-1413141/dsh-cost-meter" target="_blank" rel="noreferrer">dsh-cost-meter</a> —— DSH 插件形态</li>
+          <li><a href="https://github.com/zhuifengshaonian6/api-balance-checker-extension" target="_blank" rel="noreferrer">api-balance-checker-extension</a> —— 浏览器扩展，多中转站适配</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="mask" id="modal-mask">
+  <div class="modal" role="dialog" aria-modal="true">
+    <h3 id="modal-title">标题</h3>
+    <div class="mbody" id="modal-body"></div>
+    <div class="mfoot">
+      <button class="btn ghost" id="modal-cancel">取消</button>
+      <button class="btn primary" id="modal-ok">保存</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+/* =========================================================================
+   DeepSeek Key 面板 —— 单文件实现，无任何外部依赖 / CDN，可离线运行
+   ========================================================================= */
+
+/* ---------------- 常量 ---------------- */
+const LS_META         = "dskp.v2";        // 非敏感：设置 + 加密标记
+const LS_ENC          = "dskp.v2.enc";    // 敏感：AES-GCM 密文
+const LS_SESS         = "dskp.v2.pw";     // 会话密码（sessionStorage，关标签即失效）
+const LS_LEGACY       = "dskp.v1";        // 旧版明文（仅用于迁移）
+const LS_LEGACY_KEYS  = "dskp.v1.keys";
+const LS_LEGACY_TOKEN = "dskp.v1.utoken";
+const BALANCE_URL  = "https://api.deepseek.com/user/balance";
+const MODELS_URL   = "https://api.deepseek.com/models";
+const CHAT_URL     = "https://api.deepseek.com/chat/completions";
+const PLATFORM_BASE= "https://platform.deepseek.com/api/v0/usage";
+const RELAY_PROBE  = [8787,8788,8789,8790,8791,8792,8793,8794,8795,8796,8797,8798];
+const MAX_HISTORY  = 3000;
+const HISTORY_DAYS = 180;
+
+const STATUS = {
+  unchecked:{t:"未查询", c:"mute", ico:"◻"},
+  running  :{t:"查询中", c:"run",  ico:"◌"},
+  ok       :{t:"可用",   c:"ok",  ico:"✅"},
+  low      :{t:"余额不足",c:"warn",ico:"⚠️"},
+  invalid  :{t:"Key 无效",c:"bad", ico:"⛔"},
+  ratelimit:{t:"被限流", c:"warn",ico:"🚦"},
+  network  :{t:"网络/跨域受阻",c:"bad",ico:"🌐"},
+  server   :{t:"官方服务异常",c:"bad",ico:"🔧"},
+  error    :{t:"查询失败",c:"bad", ico:"❓"},
+};
+const MODEL_LABEL = { "deepseek-v4-flash":"V4 Flash", "deepseek-v4-pro":"V4 Pro" };
+const TOKEN_TYPES = ["PROMPT_TOKEN","PROMPT_CACHE_HIT_TOKEN","PROMPT_CACHE_MISS_TOKEN","RESPONSE_TOKEN"];
+
+/* ---------------- 小工具 ---------------- */
+const $  = (s,r=document)=>r.querySelector(s);
+const $$ = (s,r=document)=>Array.from(r.querySelectorAll(s));
+const uid = ()=> Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+const esc = s => String(s??"").replace(/[&<>"']/g, m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+const num = n => Number(n||0).toLocaleString("en-US");
+function money(v, cur){ const n=Number(v); if(!isFinite(n)) return "—";
+  return (cur==="CNY"?"¥":cur==="USD"?"$":"") + n.toFixed(2) + (cur&&cur!=="CNY"&&cur!=="USD"?" "+cur:""); }
+function maskKey(k){ if(!k) return "—"; const s=String(k);
+  return s.length<=12 ? "••••••" : s.slice(0,7)+"…"+s.slice(-4); }
+function fmtTime(ts){ if(!ts) return "—"; const d=new Date(ts), p=n=>String(n).padStart(2,"0");
+  return `${d.getMonth()+1}/${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`; }
+function fmtDay(ts){ const d=new Date(ts), p=n=>String(n).padStart(2,"0");
+  return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`; }
+function ago(ts){ if(!ts) return "从未";
+  const s=(Date.now()-ts)/1000;
+  if(s<60) return "刚刚"; if(s<3600) return Math.floor(s/60)+" 分钟前";
+  if(s<86400) return Math.floor(s/3600)+" 小时前"; return Math.floor(s/86400)+" 天前"; }
+
+let toastTimer=null;
+function toast(msg, ms=2000){
+  const t=$("#toast"); t.textContent=tr(msg); t.classList.add("show");
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove("show"), ms);
+}
+function notify(kind, html, id="notice"){
+  const box=$("#"+id); if(!box) return;
+  if(!html){ box.innerHTML=""; return; }
+  const ico={info:"ℹ️",warn:"⚠️",bad:"⛔",ok:"✅"}[kind]||"ℹ️";
+  box.innerHTML=`<div class="notice ${kind}"><span class="ico">${ico}</span><div style="flex:1">${tr(html)}</div></div>`;
+}
+
+/* =========================================================================
+   国际化
+   -------------------------------------------------------------------------
+   两条轨道：
+   1) 动态生成的字符串走 T("key") 查字典（下面 I18N）
+   2) 标记里的静态中文走 ZH2EN 映射表，applyLang() 遍历文本节点替换
+   tests/check_i18n.py 会校验：zh/en 键集合一致、ZH2EN 的每个键都真在 HTML 里
+   ========================================================================= */
+const I18N = {
+  zh: {
+    "app.title":"DeepSeek Key 面板",
+    "lock.off":"未加密", "lock.on":"已加密", "lock.locked":"已锁定", "lock.setup":"未加密",
+    "badge.detecting":"检测中…", "badge.mode.auto.relay":"自动 · 走中转", "badge.mode.auto.direct":"自动 · 直连",
+    "badge.mode.direct":"直连模式（仅余额）", "badge.mode.relay":"中转模式",
+    "badge.relay.online":"中转在线 · {0}", "badge.relay.off":"中转未连接",
+    "tab.keys":"Key 管理与余额", "tab.usage":"用量与消耗", "tab.settings":"设置与诊断",
+    "btn.theme":"🌓 主题", "btn.quit":"⏻ 退出", "btn.lang":"🌐 语言",
+    "toast.metaSaveFail":"设置保存失败（可能是隐私模式或空间不足）",
+    "toast.storageFail":"本地存储写入失败（可能是隐私模式或空间不足）",
+    "toast.encSaveFail":"加密保存失败，数据可能未落盘",
+    "store.demo":"演示模式（不落盘）。", "store.plain":"未加密保存（不推荐）。",
+    "store.encrypted":"已加密保存。", "store.locked":"已加密，等待解锁。",
+    "store.summary":"当前 {0} 个 Key；{1}历史快照 {2} 条。",
+    "status.unchecked":"未查询", "status.running":"查询中", "status.ok":"可用",
+    "status.low":"余额不足", "status.invalid":"Key 无效", "status.ratelimit":"被限流",
+    "status.network":"网络/跨域受阻", "status.server":"官方服务异常", "status.error":"查询失败",
+    "probe.pass":"✔ 实测 {0} · {1}ms", "probe.passCall":"✔ 实测 {0} · {1}ms · 真实调用 {2}ms",
+    "probe.fail":"✘ 实测不通过：{0}", "probe.models":"{0} 个模型", "probe.auth":"鉴权通过",
+    "probe.running":"实测中…",
+    "unit.keys":"个", "unit.snaps":"条快照",
+    "pw.unlockTitle":"解锁","pw.setTitle":"设置主密码","pw.changeTitle":"修改主密码",
+    "pw.unlockTip":"本地数据已用主密码加密。输入密码以解密并载入 Key、快照和用量记录。",
+    "pw.setTip":"设置主密码后，Key、余额快照、用量记录和平台 Token 都会加密后再写入本机。<b>密码不会保存在任何地方，忘记就再也解不开。</b>",
+    "pw.changeTip":"输入当前密码，再设置一个新密码。数据会用新密码重新加密。",
+    "pw.password":"密码","pw.oldPassword":"当前密码","pw.newPassword":"新密码","pw.confirm":"确认密码",
+    "pw.hint":"提示（可选，明文保存，方便自己想起）","pw.hintPh":"例如：常用的那个词 + 生日",
+    "pw.hintLabel":"密码提示","pw.empty":"密码不能为空","pw.tooShort":"密码至少 {0} 位",
+    "pw.mismatch":"两次输入不一致","pw.unlocking":"解密中…","pw.working":"处理中…",
+    "pw.wrong":"密码不对，或数据已损坏","pw.unlocked":"已解锁",
+    "pw.unlock":"解锁","pw.setBtn":"设置并加密","pw.changeBtn":"修改密码",
+    "pw.forgot":"忘记密码了？","pw.wipe":"清除加密数据（不可恢复）",
+    "pw.wipeConfirm":"这会删除本机所有加密数据（Key、快照、用量记录），且无法恢复。\n\n确定吗？",
+    "pw.wiped":"加密数据已清除","pw.weak":"这个密码太短了，建议至少 10 位",
+    "pw.saved":"主密码已设置，数据已加密保存","pw.changed":"密码已修改，数据已重新加密",
+    "enc.status":"当前状态","enc.enabled":"已启用（{0}）","enc.disabled":"未启用",
+    "enc.setBtn":"设置主密码","enc.changeBtn":"修改主密码","enc.disableBtn":"关闭加密",
+    "enc.lockBtn":"立即锁定",
+    "enc.disableConfirm":"关闭加密后，数据将以明文保存在本机。确定吗？",
+    "enc.disabled":"加密已关闭，数据将以明文保存",
+    "enc.lockedMsg":"已锁定。刷新页面或点击解锁重新载入数据。",
+    "enc.legacyWarn":"检测到<b>旧版未加密</b>的数据。建议设置主密码，加密后旧的明文副本会自动删除。",
+    "enc.notSupported":"当前环境不支持加密（需要 https、localhost 或 file:// 下的 WebCrypto），只能以明文保存。",
+    "enc.pending":"有未落盘的加密写入",
+    "lang.zh":"中文","lang.en":"English",
+    "token.rememberOn":"平台 Token 会随加密数据一起保存",
+    "token.rememberOff":"平台 Token 不再保存",
+    "confirm.delete":"删除「{0}」？",
+    "fs.unlockTitle":"解锁数据文件",
+    "fs.unlockTip":"本地数据文件设置了主密码。输入密码以解密并载入 Key、快照和用量记录。",
+    "fs.stateSaved":"已保存到文件", "fs.stateEmpty":"文件尚未创建",
+    "fs.wipeConfirm":"删除本地数据文件？\n\nKey、快照、用量记录都会从磁盘上移除，不可恢复。",
+    "fs.wiped":"数据文件已删除",
+  },
+  en: {
+    "app.title":"DeepSeek Key Panel",
+    "lock.off":"Unencrypted", "lock.on":"Encrypted", "lock.locked":"Locked", "lock.setup":"Unencrypted",
+    "badge.detecting":"Detecting…", "badge.mode.auto.relay":"Auto · via relay", "badge.mode.auto.direct":"Auto · direct",
+    "badge.mode.direct":"Direct only (balance)", "badge.mode.relay":"Relay mode",
+    "badge.relay.online":"Relay online · {0}", "badge.relay.off":"Relay offline",
+    "tab.keys":"Keys & Balances", "tab.usage":"Usage & Spend", "tab.settings":"Settings & Diagnostics",
+    "btn.theme":"🌓 Theme", "btn.quit":"⏻ Quit", "btn.lang":"🌐 Language",
+    "toast.metaSaveFail":"Failed to save settings (private mode or quota exceeded)",
+    "toast.storageFail":"Failed to write local storage (private mode or quota exceeded)",
+    "toast.encSaveFail":"Encrypted save failed; data may not be persisted",
+    "store.demo":"Demo mode (nothing persisted).", "store.plain":"Stored unencrypted (not recommended).",
+    "store.encrypted":"Stored encrypted.", "store.locked":"Encrypted, waiting to be unlocked.",
+    "store.summary":"{0} key(s); {1}{2} snapshot(s).",
+    "status.unchecked":"Not checked", "status.running":"Checking", "status.ok":"Usable",
+    "status.low":"Out of credit", "status.invalid":"Invalid key", "status.ratelimit":"Rate limited",
+    "status.network":"Network/CORS blocked", "status.server":"Upstream error", "status.error":"Check failed",
+    "probe.pass":"✔ tested {0} · {1}ms", "probe.passCall":"✔ tested {0} · {1}ms · real call {2}ms",
+    "probe.fail":"✘ test failed: {0}", "probe.models":"{0} models", "probe.auth":"auth ok",
+    "probe.running":"testing…",
+    "unit.keys":"", "unit.snaps":"snapshots",
+    "pw.unlockTitle":"Unlock","pw.setTitle":"Set master password","pw.changeTitle":"Change master password",
+    "pw.unlockTip":"Your local data is encrypted with a master password. Enter it to decrypt and load your keys, snapshots and usage records.",
+    "pw.setTip":"With a master password set, your keys, balance snapshots, usage records and platform token are encrypted before being written to this machine. <b>The password is never stored anywhere — if you forget it, the data cannot be recovered.</b>",
+    "pw.changeTip":"Enter your current password, then choose a new one. Your data will be re-encrypted.",
+    "pw.password":"Password","pw.oldPassword":"Current password","pw.newPassword":"New password","pw.confirm":"Confirm password",
+    "pw.hint":"Hint (optional, stored in cleartext so you can remind yourself)","pw.hintPh":"e.g. the usual word + a birthday",
+    "pw.hintLabel":"Password hint","pw.empty":"Password cannot be empty","pw.tooShort":"Password must be at least {0} characters",
+    "pw.mismatch":"The two entries do not match","pw.unlocking":"Decrypting…","pw.working":"Working…",
+    "pw.wrong":"Wrong password, or the data is corrupted","pw.unlocked":"Unlocked",
+    "pw.unlock":"Unlock","pw.setBtn":"Set and encrypt","pw.changeBtn":"Change password",
+    "pw.forgot":"Forgot your password?","pw.wipe":"Erase encrypted data (unrecoverable)",
+    "pw.wipeConfirm":"This deletes all encrypted data on this machine (keys, snapshots, usage records). It cannot be undone.\n\nContinue?",
+    "pw.wiped":"Encrypted data erased","pw.weak":"That password is short; 10+ characters is recommended",
+    "pw.saved":"Master password set — data is now encrypted","pw.changed":"Password changed — data re-encrypted",
+    "enc.status":"Status","enc.enabled":"Enabled ({0})","enc.disabled":"Disabled",
+    "enc.setBtn":"Set master password","enc.changeBtn":"Change password","enc.disableBtn":"Disable encryption",
+    "enc.lockBtn":"Lock now",
+    "enc.disableConfirm":"Disabling encryption stores your data in cleartext on this machine. Continue?",
+    "enc.disabled":"Encryption disabled — data will be stored in cleartext",
+    "enc.lockedMsg":"Locked. Refresh the page or unlock to load your data again.",
+    "enc.legacyWarn":"Found <b>legacy unencrypted</b> data. Setting a master password is recommended; the old cleartext copy is removed automatically once encrypted.",
+    "enc.notSupported":"Encryption is unavailable in this environment (WebCrypto requires https, localhost or file://). Data can only be stored in cleartext.",
+    "enc.pending":"encrypted write pending",
+    "lang.zh":"中文","lang.en":"English",
+    "token.rememberOn":"The platform token will be stored with your encrypted data",
+    "token.rememberOff":"The platform token will no longer be stored",
+    "confirm.delete":"Delete “{0}”?",
+    "fs.unlockTitle":"Unlock data file",
+    "fs.unlockTip":"The local data file is protected by a master password. Enter it to decrypt and load your keys, snapshots and usage records.",
+    "fs.stateSaved":"Saved to file", "fs.stateEmpty":"File not created yet",
+    "fs.wipeConfirm":"Delete the local data file?\n\nKeys, snapshots and usage records will be removed from disk permanently.",
+    "fs.wiped":"Data file deleted",
+  }
+};
+
+/** 静态标记里的中文 → 英文。applyLang() 靠它改写文本节点和 placeholder/title。 */
+const ZH2EN = {
+  "导入 Key（点开粘贴 / 拖入文件）":"Import keys (click to paste, or drop a file)",
+  "查询全部余额":"Check all balances", "查询选中":"Check selected",
+  "实测全部":"Test all", "实测选中":"Test selected", "■ 停止":"■ Stop",
+  "全部状态":"All statuses", "全部标签":"All tags",
+  "搜索名称 / Key / 备注 / 标签…":"Search name / key / note / tag…",
+  "批量选择":"Bulk select", "选可用的":"Select usable", "选无效的":"Select invalid",
+  "选预警的":"Select warnings", "取消选择":"Clear selection",
+  "导出 CSV":"Export CSV", "导出 JSON":"Export JSON", "导出纯 Key":"Export plain keys",
+  "清理无效":"Clean invalid", "清空列表":"Clear list",
+  "名称 / 标签":"Name / Tags", "API Key":"API Key", "状态 / 实测":"Status / Test",
+  "余额":"Balance", "更新时间":"Updated", "操作":"Actions",
+  "查询":"Check", "实测":"Test", "编辑":"Edit", "删":"Del",
+  "KEY 总数":"Total keys", "可用":"Usable", "异常":"Problems", "余额预警":"Low balance",
+  "实测通过":"Tests passed", "合计余额":"Total balance",
+  "已选":"selected", "未设阈值（设置页可开）":"no threshold set",
+  "鉴权 + 模型列表验证":"auth + model list", "尚未实测":"not tested yet",
+  "尚未查到余额":"no balance yet", "全部已查询":"all checked", "个未查询":"unchecked",
+  "无效 / 限流 / 网络":"invalid / limited / network",
+  "余额消耗（本地快照推算）":"Balance spend (from local snapshots)",
+  "不需要额外凭据，每次查询余额时自动记录":"No extra credentials; recorded on every balance check",
+  "近 7 天":"Last 7 days", "近 30 天":"Last 30 days", "近 90 天":"Last 90 days", "全部":"All",
+  "当前余额":"Current balance", "累计消耗":"Total spend", "累计充值":"Total top-ups",
+  "日均消耗":"Daily burn", "个快照":"snapshots", "次":"times",
+  "余额曲线":"Balance", "充值点（余额上升）":"Top-up (balance rose)",
+  "官方用量接口（Token / 请求数 / 费用）":"Official usage API (tokens / requests / cost)",
+  "需要本地中转 + DeepSeek 网页登录 Token":"Needs the local relay + a DeepSeek web session token",
+  "DeepSeek 平台登录 Token（不是 API Key）":"DeepSeek platform token (NOT an API key)",
+  "粘贴 userToken，或用下面的控制台脚本一键提取":"Paste userToken, or use the console snippet below",
+  "查询月份":"Month", "拉取官方用量":"Fetch official usage",
+  "对比最近 3 个月":"Compare last 3 months", "清除结果":"Clear results",
+  "记住这个 Token（存本机 localStorage，仅方便自己，公共电脑别勾）":
+    "Remember this token (stored locally — don't tick on a shared computer)",
+  "❓ 怎么拿到这个 Token（30 秒）":"❓ How to get this token (30 seconds)",
+  "最近几个月对比":"Recent months", "月份":"Month", "请求数":"Requests", "总 TOKEN":"Total tokens",
+  "缓存命中":"Cache hits", "费用":"Cost", "费用占比":"Cost share",
+  "数据时间":"Period", "拉取于":"fetched", "总费用":"Total cost", "当月累计":"this month",
+  "输入+输出":"input + output", "API 调用次数":"API calls", "缓存命中率":"Cache hit rate",
+  "按天分布（TOKEN）":"Daily tokens", "按天明细":"Daily detail", "按模型拆解":"By model",
+  "日期":"Date", "总Token":"Total", "缓存未命中":"Cache misses", "输出":"Output",
+  "输入Token":"Input", "合计":"Total", "模型":"Model", "缓存命中率":"Cache hit rate",
+  "🔌 连接方式":"🔌 Connection", "查询通道":"Transport",
+  "自动（优先用本地中转，不可用则直连）":"Auto (prefer local relay, fall back to direct)",
+  "仅本地中转（可解锁官方用量接口）":"Local relay only (unlocks the official usage API)",
+  "仅浏览器直连（只能查余额）":"Browser direct only (balance checks only)",
+  "余额接口支持跨域，浏览器可直连；官方用量接口没有 CORS 头，必须经本地中转。":
+    "The balance API supports CORS, so the browser can call it directly. The usage API sends no CORS headers and must go through the local relay.",
+  "本地中转地址":"Local relay address",
+  "启动方式：双击 启动面板.cmd，或命令行 python run_panel.py。端口会自动向上探测 8787–8798。":
+    "Start it by double-clicking 启动面板.cmd, or run python run_panel.py. Ports 8787–8798 are probed automatically.",
+  "🔍 重新检测中转":"🔍 Re-detect relay",
+  "⚙️ 查询参数":"⚙️ Request settings", "并发数":"Concurrency", "单次超时（秒）":"Timeout (s)",
+  "失败重试次数":"Retries", "自动刷新":"Auto-refresh", "关闭":"Off",
+  "每 1 分钟":"Every minute", "每 5 分钟":"Every 5 minutes", "每 15 分钟":"Every 15 minutes",
+  "每 30 分钟":"Every 30 minutes", "每 1 小时":"Every hour",
+  "同时查询多少个 Key，官方接口建议不超过 4–6。":"How many keys to check at once. 4–6 is a safe ceiling.",
+  "🔻 余额预警":"🔻 Low-balance alerts",
+  "跌破阈值时高亮该行，并可发浏览器通知":"Highlight rows below the threshold, optionally notify",
+  "预警阈值（0 = 关闭）":"Threshold (0 = off)",
+  "对所有币种用同一个阈值。低于它的 Key 会在表格里高亮，汇总卡也会计数。":
+    "One threshold for all currencies. Keys below it are highlighted and counted in the summary.",
+  "跌破阈值时发浏览器通知（需授权；页面开着才有效）":
+    "Send a browser notification when below the threshold (needs permission; page must be open)",
+  "发一条测试通知":"Send a test notification",
+  "🔬 可用性实测":"🔬 Usability testing",
+  "余额接口能通 ≠ 这个 Key 真的能用":"A reachable balance API ≠ a working key",
+  "深度实测使用的模型":"Model used for deep testing",
+  "💾 备份与恢复":"💾 Backup & restore", "完整状态的导入导出":"Full-state import and export",
+  "导出完整备份 (JSON)":"Export full backup (JSON)", "从备份恢复…":"Restore from backup…",
+  "导出纯 Key 列表":"Export plain key list",
+  "🔐 数据加密":"🔐 Encryption at rest",
+  "🩺 连接自检":"🩺 Connection self-check", "开始自检":"Run self-check",
+  "ℹ️ 关于":"ℹ️ About",
+  "🔐 安全与数据":"🔐 Security & data",
+  "取消":"Cancel", "保存":"Save", "确定":"OK", "关闭窗口":"Close",
+  "还没有 Key。点开上面「导入 Key」开始。":"No keys yet. Open “Import keys” above to start.",
+  "没有符合筛选条件的 Key。":"No keys match the filter.",
+  "标题":"Title",
+
+  "DeepSeek Key 面板":"DeepSeek Key Panel", "检测中…":"Detecting…", "中转未连接":"Relay offline",
+  "🌓 主题":"🌓 Theme", "⏻ 退出":"⏻ Quit",
+  "Key 管理与余额":"Keys & Balances", "用量与消耗":"Usage & Spend", "设置与诊断":"Settings & Diagnostics",
+  "📥 导入 Key（点开粘贴 / 拖入文件）":"📥 Import keys (click to paste, or drop a file)",
+  "粘贴区 —— 每行一个，支持":"Paste area — one per line. Accepts ",
+  "名称,Key":"name,key", "Key,备注":"key,note",
+  "（逗号、制表符、分号、竖线均可分隔）":" (comma, tab, semicolon or pipe separated)",
+  "自动识别":"Detects ", "开头的串、去掉":" prefixes automatically, strips the ",
+  "前缀、自动去重；":" prefix and de-duplicates; lines starting with ",
+  "开头的行视为注释。":" are treated as comments.",
+  "导入粘贴内容":"Import pasted text", "📁 选择文件 (.txt/.csv/.json)":"📁 Choose files (.txt/.csv/.json)",
+  "填入示例":"Fill with example", "JSON 也支持":"JSON works too",
+  "、或纯字符串数组。":", or a plain array of strings.",
+  "也可以直接把文件拖到本页任意位置。":"You can also just drag files anywhere onto this page.",
+  "⚡ 查询全部余额":"⚡ Check all balances", "🔬 实测全部":"🔬 Test all",
+  "✅ 可用":"✅ Usable", "⚠️ 异常":"⚠️ Problems",
+  "🔬 实测通过":"🔬 Test passed", "🔬 实测不通过":"🔬 Test failed",
+  "🏷 有标签":"🏷 Tagged", "◻ 未查询":"◻ Not checked",
+  "📈 余额消耗（本地快照推算）":"📈 Balance spend (from local snapshots)",
+  "原理：每次成功查询会记录一条「时间 + 余额」快照，消耗 = 相邻两次快照中余额下降的部分之和，充值 = 上升部分之和。":
+    "How it works: every successful check records a (timestamp, balance) snapshot. Spend is the sum of decreases between consecutive snapshots; top-ups are the sum of increases.",
+  "快照只保存在本机浏览器里":"Snapshots live only in this browser",
+  "，换浏览器/清缓存就会丢。想要权威用量请看下面的官方接口。":", so switching browsers or clearing the cache loses them. For authoritative figures use the official API below.",
+  "🧾 官方用量接口（Token / 请求数 / 费用）":"🧾 Official usage API (tokens / requests / cost)",
+  "它来自":"It comes from the login session of ",
+  "的登录态，有效期有限，过期后重新提取即可。":" and expires after a while — just grab a new one when it does.",
+  "方法一（推荐，自动复制）":"Option 1 (recommended, auto-copy)",
+  "：在浏览器登录":" — log in to ", "按":"Press ",
+  "打开控制台，粘贴下面这段并回车，Token 会自动进剪贴板，回来直接 Ctrl+V：":" to open the console, paste the snippet below and press Enter. The token lands on your clipboard — just Ctrl+V here.",
+  "复制脚本":"Copy snippet", "方法二（手动）":"Option 2 (manual)",
+  "Application / 应用":"Application", "找到":"Find ",
+  "，复制它的值。值可能是":" and copy its value. It may look like a JSON blob such as ",
+  "这样一段 JSON，":" ,",
+  "整段粘过来也行":"pasting the whole thing is fine",
+  "，面板会自动把里面的 Token 抠出来。":" — the panel extracts the token from it.",
+  "余额接口支持跨域，浏览器可直连；官方用量接口没有 CORS 头，":"The balance API supports CORS so the browser can call it directly. The usage API sends no CORS headers and ",
+  "必须":"must", "经本地中转。":" go through the local relay.",
+  "启动方式：双击":"Start it by double-clicking ", "，或命令行":" or by running ",
+  "。端口会自动向上探测 8787–8798。":". Ports 8787–8798 are probed automatically.",
+  "深度实测":"Deep test",
+  "：每个 Key 真实调用一次 chat completions（max_tokens=1）。":" — makes one real chat completions call per key (max_tokens=1).",
+  "会产生极少量费用，但能确认「真的能调模型」。不勾选则只查":"It costs a negligible amount but proves the key can actually call a model. Unchecked, only ",
+  "验证鉴权与 API 可达性，":" is called to verify auth and API reachability — ",
+  "不消耗任何 token":"costing zero tokens",
+  "不确定就保持默认":"If unsure, leave the default ",
+  "。若报「模型不存在」，换成你在用的模型名。":". If it reports “model not found”, switch to the model you actually use.",
+  "完整备份":"Full backup",
+  "包含 Key（明文）、标签、备注、设置、余额快照历史、平台用量结果 —— 换电脑或换浏览器时导出再导入即可完整迁移。":
+    " covers keys (cleartext), tags, notes, settings, snapshot history and usage results — export and re-import to move everything to another machine or browser.",
+  "纯 Key 列表":"Plain key list",
+  "只导出当前筛选结果的 Key，一行一个，方便喂给别的工具。":" exports just the currently filtered keys, one per line, ready for other tools.",
+  "两个文件都是明文的":"Both files are cleartext",
+  "，等同于你的 Key 本身，别丢网盘也别发人。":", equivalent to the keys themselves. Don't put them on cloud storage or send them to anyone.",
+  "Key、余额快照、用量记录、平台 Token 都加密后才写入本机":
+    "Keys, snapshots, usage records and the platform token are encrypted before being written to this machine",
+  "当前状态":"Status", "密码提示":"Password hint",
+  "设置主密码":"Set master password", "修改主密码":"Change master password",
+  "立即锁定":"Lock now", "关闭加密":"Disable encryption",
+  "加密方式：":"Encryption: ", "，密钥由主密码经":"; the key is derived from your password with ",
+  "（25 万次迭代）派生，":" (250,000 iterations). ",
+  "每条记录使用随机盐与随机 IV。密码本身":"Every record uses a random salt and IV. The password itself is ",
+  "不写入任何地方":"never written anywhere",
+  "；勾选会话保持时只存在":"; with session keep enabled it lives only in ",
+  "，关掉标签页即失效。":", and is discarded when the tab closes.",
+  "忘记密码等于数据永久丢失":"Forgetting the password means the data is gone forever",
+  "，没有任何后门可以恢复。":". There is no recovery backdoor.",
+  "在":"With encryption ", "未启用加密":"disabled",
+  "时，也把 Key 以明文保存在本机浏览器。":", also store keys in cleartext in this browser.",
+  "不勾选则只留在内存，刷新即消失":"Unchecked, they stay in memory and vanish on refresh",
+  "（强烈建议改用上面的加密存储）":" (using the encrypted store above is strongly recommended)",
+  "表格里默认明文显示 Key（默认打码为":"Show keys in cleartext in the table (masked as ",
+  "导出 CSV/JSON 时包含完整 Key（默认打码，便于安全分享）":"Include full keys in CSV/JSON exports (masked by default for safe sharing)",
+  "🗑 清除全部本机数据":"🗑 Erase all local data",
+  "这个工具怎么处理你的 Key：":"How this tool handles your keys:",
+  "所有请求都由":"Every request goes from ",
+  "你的浏览器或你本机的中转进程":"your browser or the local relay process",
+  "直接发往":" straight to ", "，没有任何第三方服务器参与。":". No third-party server is involved.",
+  "本地服务只监听":"The local server binds to ",
+  "，只允许转发到上面两个域名，不记录也不落盘 Key。代码就在":" only, forwards solely to those two hosts, and never logs or persists keys. The code lives in ",
+  "，可以直接审。":", so you can audit it.",
+  "小心截图分享：Key 和平台 Token 都在页面上，打码功能默认是开的。":"Be careful with screenshots: keys and the platform token are both on screen. Masking is on by default.",
+  "官方接口能力（已实测确认）：":"API capabilities (verified in practice):",
+  "—— 用 API Key 查余额，返回":" — balance lookup with an API key; returns ",
+  "与各币种的总额/赠送/充值余额。支持跨域。":" plus per-currency total, granted and topped-up amounts. CORS enabled.",
+  "与":" and ",
+  "—— 查真实 Token 用量与费用。需要用":" — real token usage and cost. Requires a ",
+  "网页登录 Token":"web session token",
+  "，且没有 CORS 头，必须经本地中转。":", and sends no CORS headers, so it must go through the local relay.",
+  "没有":"does not",
+  "提供「用 API Key 查历史调用量」的接口 —— 官方文档只有余额。所以任何声称能直接用 API Key 出用量的工具，要么在爬网页登录态，要么在本地自己记账。":
+    " expose an endpoint for historical usage behind an API key — the docs cover balance only. Any tool claiming to produce usage from a key alone is either scraping the web session or bookkeeping locally.",
+  "相关开源项目（本面板未使用其代码，仅作参考）：":"Related open-source projects (no code reused here, reference only):",
+  "—— Tauri/Rust 桌面监控，用量接口的调用方式参考了它":" — Tauri/Rust desktop monitor; the usage-endpoint calling convention was informed by it",
+  "—— DSH 插件形态":" — DeepSeek Harness plugins",
+  "—— 浏览器扩展，多中转站适配":" — browser extension for multiple relay providers",
+
+  /* --- 含变量的提示语（供 tr() 子串替换） --- */
+  "中转已连接":"Relay connected", "已自动发现中转 ":"Auto-discovered relay ",
+  "API Key 不能为空":"API key cannot be empty",
+  "这个 Key 已经在列表里了（":"This key is already in the list (", "已保存":"Saved",
+  "完整备份已导出（含明文 Key，请妥善保管）":"Full backup exported (contains cleartext keys — keep it safe)",
+  "这不是本面板导出的备份文件":"This file was not exported by this panel",
+  "备份已恢复：":"Backup restored: ",
+  "将用备份覆盖当前数据：":"This will overwrite your current data:",
+  "\n\n· Key ":"\n\n· keys: ", " 个\n· 历史快照 ":"\n· snapshots: ",
+  " 条\n· 设置会被替换\n\n当前数据将被覆盖，确定继续？":"\n· settings will be replaced\n\nYour current data will be overwritten. Continue?",
+  "当前筛选结果为空":"The current filter matches nothing",
+  "将导出 ":"This exports ", " 个 Key 的【明文】列表（txt，一行一个）。":" keys in cleartext (txt, one per line).",
+  "\n\n任何拿到这个文件的人都等于拿到了你的 Key，确定？":"\n\nAnyone who gets this file gets your keys. Continue?",
+  "已导出 ":"Exported ", " 个明文 Key":" cleartext keys",
+  "没有检测到无效 Key（先跑一次查询或实测）":"No invalid keys detected (run a check or a test first)",
+  "将从列表移除 ":"This removes ", " 个返回 401 的无效 Key：":" keys that returned 401:",
+  "\n\n余额不足 / 限流 / 网络失败的不会被删。确定？":"\n\nOut-of-credit, rate-limited and network failures are left alone. Continue?",
+  "已清理 ":"Removed ", " 个无效 Key":" invalid keys",
+  "请先填入 DeepSeek 平台登录 Token。":"Enter your DeepSeek platform session token first.",
+  "正在拉取 ":"Fetching ", " 年 ":" ", " 月的官方用量…":" usage…",
+  "请求官方接口失败：":"Official API request failed: ", "平台返回异常：":"Platform returned an error: ",
+  "官方用量已更新":"Official usage updated",
+  "对比需要本地中转，请先启动它。":"Comparison needs the local relay — start it first",
+  "月份格式异常":"Unexpected month format",
+  "正在拉取最近 ":"Fetching the last ", " 个月的官方用量…（共 ":" months of usage… (",
+  " 个请求）":" requests)", "还没有官方用量数据":"No official usage data yet",
+  "用量 CSV 已导出":"Usage CSV exported",
+  "导入完成：新增 ":"Import complete: added ", "，重复 ":" duplicate ", " 个":"",
+  "没有可导出的数据":"Nothing to export",
+  "CSV 已导出":"CSV exported", "（含完整 Key，注意保管）":" (with full keys — keep it safe)",
+  "（Key 已打码）":" (keys masked)", "JSON 已导出":"JSON exported", "自检完成":"Self-check complete",
+  "浏览器没有授予通知权限，已自动关闭":"Notification permission denied — turned off",
+  "浏览器没有授予通知权限":"Notification permission denied",
+  "🔔 测试通知":"🔔 Test notification",
+  "能看到这条，说明余额预警通知可以正常工作。":"If you can see this, low-balance notifications work.",
+  "已发送":"Sent", "发送失败：":"Send failed: ",
+  "已清除用量结果":"Usage results cleared",
+  "确定清除全部本机数据？（Key、快照、设置、平台 Token 全部删除，不可恢复）":
+    "Erase all local data? (keys, snapshots, settings and the platform token are deleted permanently)",
+  "已清除":"Cleared", "已自动提取出 Token":"Token extracted automatically",
+  "没解析出 Key，检查一下内容":"No keys parsed — check the input",
+  "已请求停止":"Stop requested", "已选中 ":"Selected ", " 个预警 Key":" keys below the threshold",
+  "确定清空 Key 列表？（历史快照会保留）":"Clear the key list? (snapshot history is kept)",
+  "列表已清空":"List cleared", "已复制完整 Key":"Full key copied", "已复制":"Copied",
+  "复制失败，请手动选中":"Copy failed — select it manually",
+  "要退出 DeepSeek Key 面板吗？":"Quit DeepSeek Key Panel?",
+  "本地服务会一并关闭，这个页面随之失效。":"The local server will shut down and this page will stop working.",
+  "深度实测会为每个 Key 真实调用一次 ":"Deep testing makes one real call per key to ",
+  "（max_tokens=1）。":" (max_tokens=1).",
+  " 个 Key，会产生极少量费用，但能确认「这个 Key 真的能调模型」。":
+    " keys will cost a negligible amount but prove they can actually call a model.",
+  "\n\n确定继续？":"\n\nContinue?",
+  "实测完成：":"Test complete: ", " 个 Key 验证通过":" keys passed",
+  "完成：":"Done: ", " 个 Key，":" keys, ", " 个查询成功":" succeeded",
+  "「":"“", "」":"”",
+
+  /* --- 动态文本片段 --- */
+  "已选 ":"selected: ", " 个</div>":"</div>",
+  "低于 ":"below ", " 的 Key":"",
+  "赠送 ":"granted ", "充值 ":"topped-up ", "预警":"low",
+  "直连":"direct", "经中转":"via relay",
+  "刚刚":"just now", "分钟前":"m ago", "小时前":"h ago", "天前":"d ago",
+  "从未":"never", "个快照":"snapshots", "条快照":"snapshots",
+  "个模型":" models", "个请求":" requests",
+  "查询剩下的 ":"Check the remaining ",
+  "个未查询":"unchecked", "全部已查询":"all checked",
+  "共 ":"Total ", "显示 ":"shown ", "已成功查询 ":"checked ",
+  "没有符合筛选条件的 Key。":"No keys match the filter.",
+  "还没有 Key。点开上面「导入 Key」开始。":"No keys yet — open “Import keys” above to start.",
+  "无数据":"No data",
+  "演示模式</b>：界面上的 Key、余额、用量":"Demo mode</b>: the keys, balances and usage on this screen are ",
+  "<b>全是编造的假数据</b>":"<b>entirely fabricated</b>",
+  "，不会联网、不会写入本机存储。刷新页面（不带 ":", nothing is sent over the network and nothing is written to local storage. Refresh without ",
+  "）即可回到真实模式。":" to return to real mode.",
+  "本地中转在线：":"Local relay online: ",
+  "，官方用量接口可用。":", the official usage API is available.",
+  "本地中转</b>":"Local relay</b>",
+  "未连接</b>":"is <b>not connected</b>",
+  "，官方用量接口用不了（它没有 CORS 头，浏览器直连必被拦）。":
+    ", so the official usage API is unavailable (it sends no CORS headers and the browser will always block a direct call). ",
+  "启动中转后点这里 ":"Start the relay, then click ",
+  "重新检测":"Re-detect",
+  "数据时间：":"Period: ", " · 拉取于 ":" · fetched ",
+  "还没有拉取过官方用量。填入 Token、选好月份，点「拉取官方用量」。":
+    "No official usage fetched yet. Enter your token and month, then click “Fetch official usage”.",
+  "该月没有数据":"No data for this month", "没有模型数据":"No model data",
+  "月份":"Month", "日期":"Date",
+
+  /* --- 本地数据文件 --- */
+  "📁 本地数据文件":"📁 Local data file",
+  "加密后保存到磁盘，打开面板自动解密":"Encrypted on disk, decrypted automatically when the panel opens",
+  "存储位置":"Location", "状态":"Status",
+  "删除数据文件":"Delete data file",
+  "用 Windows DPAPI 加密：密钥由你的 Windows 账户派生，":"Encrypted with Windows DPAPI: the key is derived from your Windows account, so ",
+  "只有这台机器的这个账户能解开":"only this account on this machine can decrypt it",
+  "。好处是打开面板自动解密、不用输密码；代价是这个文件拷到别的电脑上就是废数据。":
+    ". The upside is automatic decryption with no password; the trade-off is that the file is useless on another computer.",
+};
+
+let LANG = "zh";
+function detectLang(){
+  const s = (S.settings && S.settings.lang) || "";
+  if(s === "zh" || s === "en") return s;
+  const nav = (navigator.language || navigator.userLanguage || "zh").toLowerCase();
+  return nav.startsWith("zh") ? "zh" : "en";
+}
+/** 取翻译。{0} {1} 依参数替换；查不到就返回 key 本身（便于发现漏翻） */
+function T(key, ...args){
+  const dict = I18N[LANG] || I18N.zh;
+  let s = dict[key];
+  if(s === undefined) s = I18N.zh[key];
+  if(s === undefined) return key;
+  return s.replace(/\{(\d+)\}/g, (m, i)=> args[+i] !== undefined ? String(args[+i]) : m);
+}
+/** 静态标记改写：遍历文本节点与 placeholder/title，按 ZH2EN 替换 */
+function applyLangToDom(root){
+  const scope = root || document.body;
+  const walker = document.createTreeWalker(scope, NodeFilter.SHOW_TEXT, null);
+  const nodes = [];
+  while(walker.nextNode()) nodes.push(walker.currentNode);
+  nodes.forEach(n=>{
+    const raw = n.nodeValue;
+    const key = raw.trim();
+    if(!key) return;
+    if(LANG === "en"){
+      // 精确命中优先，否则走 tr() 的子串替换 —— 这样「已选 3 个」这类
+      // 带变量的文本节点也能翻译
+      const hit = (ZH2EN[key] !== undefined) ? ZH2EN[key] : tr(key);
+      if(hit !== key) n.nodeValue = raw.replace(key, hit);
+    }else if(REV_ZH[key] !== undefined){
+      n.nodeValue = raw.replace(key, REV_ZH[key]);
+    }
+  });
+  scope.querySelectorAll("[placeholder]").forEach(el=>{
+    const k = el.dataset.i18nZh || el.getAttribute("placeholder");
+    if(LANG === "en"){
+      if(!el.dataset.i18nZh) el.dataset.i18nZh = k;
+      if(ZH2EN[k]) el.setAttribute("placeholder", ZH2EN[k]);
+    }else if(el.dataset.i18nZh){
+      el.setAttribute("placeholder", el.dataset.i18nZh);
+    }
+  });
+  scope.querySelectorAll("[title]").forEach(el=>{
+    const k = el.dataset.i18nTitleZh || el.getAttribute("title");
+    if(LANG === "en"){
+      if(!el.dataset.i18nTitleZh) el.dataset.i18nTitleZh = k;
+      if(ZH2EN[k]) el.setAttribute("title", ZH2EN[k]);
+    }else if(el.dataset.i18nTitleZh){
+      el.setAttribute("title", el.dataset.i18nTitleZh);
+    }
+  });
+  // 显式的语言区块（长段落用）。
+  // 注意属性名是 data-only-lang，不要用 data-lang —— 语言开关的按钮曾经
+  // 误用了 data-lang，结果被这段逻辑按「非当前语言」给 display:none 掉了。
+  $$("[data-only-lang]").forEach(el=>{ el.style.display = (el.dataset.onlyLang === LANG) ? "" : "none"; });
+}
+/** 反向表：英文 → 中文，切回中文时用 */
+const REV_ZH = (function(){
+  const m = {};
+  Object.keys(ZH2EN).forEach(k=>{ if(!(ZH2EN[k] in m)) m[ZH2EN[k]] = k; });
+  return m;
+})();
+
+/** 含变量的提示语（toast / confirm / notify）翻译。
+ *  先整串精确匹配，再按「长键优先」做子串替换 —— 这样 ``完成：3 个 Key`` 这
+ *  类拼接出来的句子也能被翻译，不用去改几十个调用点。短键（<3 字）不参与
+ *  子串替换，避免误伤。 */
+const TR_KEYS = Object.keys(ZH2EN).filter(k => k.length >= 2)
+                                .sort((a, b) => b.length - a.length);
+function tr(msg){
+  if(LANG !== "en" || msg == null) return msg;
+  const s = String(msg);
+  if(ZH2EN[s] !== undefined) return ZH2EN[s];
+  let out = s;
+  for(const k of TR_KEYS){
+    if(out.indexOf(k) >= 0) out = out.split(k).join(ZH2EN[k]);
+  }
+  return out;
+}
+// 原生 confirm 也过一遍翻译
+(function(){
+  const native = window.confirm ? window.confirm.bind(window) : null;
+  if(!native) return;
+  window.confirm = function(msg){ return native(tr(msg)); };
+})();
+function setLang(lang){
+  LANG = (lang === "en") ? "en" : "zh";
+  S.settings.lang = LANG;
+  save();
+  // 直接重载：静态标记和动态内容都会按新语言重新生成一遍，
+  // 这样就不用去维护「英文 → 中文」的反向映射了
+  flushSave().then(()=>location.reload()).catch(()=>location.reload());
+}
+
+/* ---------------- 状态 ---------------- */
+function defaultSettings(){
+  return { mode:"auto", relay:"http://127.0.0.1:8787", concurrency:4, timeout:20, retries:1,
+           autoRefresh:0, rememberKeys:false, reveal:false, exportFull:false,
+           warnThreshold:0, notifyOnWarn:false,     // 余额预警（0 = 关闭），跌破时发浏览器通知
+           probeDeep:false, probeModel:"deepseek-chat", // 可用性实测：快速(/models) 或 深度(真实调用)
+           encryption:{ enabled:false, hint:"" },   // 加密存储（主密码）
+           lang:"", sessionKeep:true, saveToken:true }; // 语言（空 = 跟随浏览器）
+}
+let S = { keys:[], results:{}, history:{}, settings:defaultSettings(), usage:null, usageMeta:null, compare:null };
+let UTOKEN = "";
+let RUNNING = false;
+let INFLIGHT = new Set();
+let TIMER = null;
+let SELECTED = new Set();
+let PLAIN_LEGACY_FOUND = false;   // 检测到旧版明文数据，提示用户迁移
+
+/** 统一 Key 对象形状（旧数据缺字段时补默认值） */
+function normKey(x){
+  return { id: x.id || uid(), name: x.name || "", key: String(x.key||"").trim(),
+           enabled: x.enabled !== false, note: x.note || "",
+           tags: Array.isArray(x.tags) ? x.tags.filter(Boolean).map(String)
+                                      : (x.tags ? String(x.tags).split(/[,，\s]+/).filter(Boolean) : []) };
+}
+/** 全库标签去重统计 */
+function allTags(){
+  const m = new Map();
+  S.keys.forEach(k=>(k.tags||[]).forEach(t=> m.set(t, (m.get(t)||0)+1)));
+  return Array.from(m.entries()).sort((a,b)=> b[1]-a[1] || a[0].localeCompare(b[0]));
+}
+
+/* =========================================================================
+   加密存储
+   -------------------------------------------------------------------------
+   所有敏感内容（Key、余额快照、用量、平台 Token）在写入 localStorage 前，
+   先用主密码派生出密钥做 AES-GCM 加密。密码本身不落盘（只留在内存，
+   可选留在 sessionStorage 以便刷新后免重复输入，关掉标签页即失效）。
+   ========================================================================= */
+const PBKDF2_ITER = 250000;
+const MIN_PW_LEN  = 6;
+
+let SESSION_PW = null;      // 当前会话的主密码（内存）
+let UNLOCKED   = false;     // 是否已解锁
+let CRYPTO_ERR = null;      // 加密不可用时的原因
+
+const CRYPTO_OK = (function(){
+  try{
+    if(!window.crypto || !window.crypto.subtle) return false;
+    if(typeof TextEncoder === "undefined") return false;
+    return true;
+  }catch(e){ return false; }
+})();
+if(!CRYPTO_OK) CRYPTO_ERR = "当前环境不支持 WebCrypto（需要 https、localhost 或 file://）";
+
+const b64   = buf => btoa(String.fromCharCode.apply(null, new Uint8Array(buf)));
+const unb64 = s   => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+
+async function deriveKey(password, salt, iterations){
+  const base = await crypto.subtle.importKey(
+    "raw", new TextEncoder().encode(password), "PBKDF2", false, ["deriveKey"]);
+  return crypto.subtle.deriveKey(
+    { name:"PBKDF2", salt, iterations, hash:"SHA-256" },
+    base, { name:"AES-GCM", length:256 }, false, ["encrypt", "decrypt"]);
+}
+async function encryptBlob(obj, password){
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const iv   = crypto.getRandomValues(new Uint8Array(12));
+  const key  = await deriveKey(password, salt, PBKDF2_ITER);
+  const ct   = await crypto.subtle.encrypt(
+    { name:"AES-GCM", iv }, key, new TextEncoder().encode(JSON.stringify(obj)));
+  return { v:1, alg:"AES-GCM-256", kdf:"PBKDF2-SHA256", iterations:PBKDF2_ITER,
+           salt:b64(salt), iv:b64(iv), ct:b64(ct) };
+}
+async function decryptBlob(blob, password){
+  const key = await deriveKey(password, unb64(blob.salt), blob.iterations || PBKDF2_ITER);
+  const pt  = await crypto.subtle.decrypt(
+    { name:"AES-GCM", iv:unb64(blob.iv) }, key, unb64(blob.ct));
+  return JSON.parse(new TextDecoder().decode(pt));
+}
+
+/** 敏感数据 —— 全部进加密载荷 */
+function sensitivePayload(){
+  return { keys:S.keys, results:S.results, history:S.history,
+           usage:S.usage, usageMeta:S.usageMeta, compare:S.compare,
+           platformToken: (S.settings.saveToken === false) ? "" : (UTOKEN || "") };
+}
+function applyPayload(p){
+  if(!p || typeof p!=="object") return;
+  S.keys      = (Array.isArray(p.keys)?p.keys:[]).map(normKey).filter(x=>x.key);
+  S.results   = (p.results && typeof p.results==="object") ? p.results : {};
+  S.history   = (p.history && typeof p.history==="object") ? p.history : {};
+  S.usage     = p.usage || null;
+  S.usageMeta = p.usageMeta || null;
+  S.compare   = p.compare || null;
+  UTOKEN      = p.platformToken || "";
+}
+function encEnabled(){ return !!(S.settings.encryption && S.settings.encryption.enabled); }
+function readMeta(){
+  try{ return JSON.parse(localStorage.getItem(LS_META) || "{}"); }catch(e){ return {}; }
+}
+function readEncBlob(){
+  try{ const raw = localStorage.getItem(LS_ENC); return raw ? JSON.parse(raw) : null; }
+  catch(e){ return null; }
+}
+
+/** 首次启动：读设置；如果启用了加密，尝试自动解锁（会话密码）或弹窗 */
+async function load(){
+  const meta = readMeta();
+  if(meta.settings) Object.assign(S.settings, meta.settings);
+  if(meta.settings && meta.settings.encryption) S.settings.encryption = meta.settings.encryption;
+
+  if(encEnabled() && readEncBlob()){
+    const pw = (()=>{ try{ return sessionStorage.getItem(LS_SESS); }catch(e){ return null; } })();
+    if(pw && await tryUnlock(pw)) return;      // 静默解锁成功
+    SESSION_PW = null; UNLOCKED = false;
+    askPassword();                              // 弹窗要密码（解锁后自动重绘）
+    return;
+  }
+  // 未启用加密：走旧的明文逻辑（并提示用户去加密）
+  loadLegacyPlain();
+}
+/** 旧版明文存储（兼容 & 迁移用） */
+function loadLegacyPlain(){
+  let migrated = false;
+  try{
+    const raw = JSON.parse(localStorage.getItem(LS_LEGACY) || "{}");
+    if(raw.settings) Object.assign(S.settings, raw.settings);
+    if(raw.results)  S.results = raw.results;
+    if(raw.history)  S.history = raw.history;
+    if(raw.usage)    S.usage = raw.usage;
+    if(raw.usageMeta)S.usageMeta = raw.usageMeta;
+    if(raw.compare)  S.compare = raw.compare;
+    migrated = !!(raw.results || raw.history || Object.keys(raw.settings||{}).length);
+  }catch(e){ console.warn("读取旧版数据失败", e); }
+  try{
+    const k = JSON.parse(localStorage.getItem(LS_LEGACY_KEYS) || "[]");
+    if(Array.isArray(k) && k.length){ S.keys = k.map(normKey).filter(x=>x.key); migrated = true; }
+  }catch(e){}
+  try{ const t = localStorage.getItem(LS_LEGACY_TOKEN); if(t){ UTOKEN = t; migrated = true; } }catch(e){}
+  pruneHistory();
+  if(migrated) PLAIN_LEGACY_FOUND = true;
+}
+function pruneHistory(){
+  const cutoff = Date.now() - HISTORY_DAYS*86400e3;
+  for(const id of Object.keys(S.history)){
+    S.history[id] = (S.history[id]||[]).filter(e=>e.t>=cutoff).slice(-MAX_HISTORY);
+    if(!S.history[id].length) delete S.history[id];
+  }
+}
+function dropLegacyPlain(){
+  [LS_LEGACY, LS_LEGACY_KEYS, LS_LEGACY_TOKEN].forEach(k=>{
+    try{ localStorage.removeItem(k); }catch(e){}
+  });
+  PLAIN_LEGACY_FOUND = false;
+}
+
+/* ---- 保存 ---- */
+let saveChain = Promise.resolve();
+function save(){
+  if(DEMO){ updateStoreInfo(); return; }
+  // 1) 设置（非敏感）同步写，快且不怕丢
+  try{
+    localStorage.setItem(LS_META, JSON.stringify({
+      v:2, settings:S.settings,
+      security: encEnabled()
+        ? { enabled:true, hint:(S.settings.encryption.hint||""), iterations:PBKDF2_ITER,
+            updatedAt: Date.now() }
+        : { enabled:false }
+    }));
+  }catch(e){ toast(T("toast.metaSaveFail")); }
+
+  // 2) 敏感数据：加密后异步写，串行化避免竞态
+  if(encEnabled()){
+    if(!UNLOCKED || !SESSION_PW){ updateStoreInfo(); return; }
+    saveChain = saveChain.then(doEncryptedSave).catch(()=>{});
+  }else if(S.settings.rememberKeys){
+    try{
+      localStorage.setItem(LS_LEGACY_KEYS, JSON.stringify(S.keys));
+      if(UTOKEN) localStorage.setItem(LS_LEGACY_TOKEN, UTOKEN);
+    }catch(e){ toast(T("toast.storageFail")); }
+  }
+  // 3) 本地数据文件（INI + DPAPI）—— 起了本地服务才可用
+  fileStoreSave();
+  updateStoreInfo();
+}
+async function doEncryptedSave(){
+  try{
+    const blob = await encryptBlob(sensitivePayload(), SESSION_PW);
+    localStorage.setItem(LS_ENC, JSON.stringify(blob));
+    dropLegacyPlain();                    // 明文副本一旦不再需要就删掉
+  }catch(e){
+    console.warn("加密保存失败", e);
+    toast(T("toast.encSaveFail"));
+  }
+  updateStoreInfo();
+}
+/** 立即把待写的加密数据落盘（关页面前用） */
+async function flushSave(){
+  try{ await saveChain; }catch(e){}
+  if(encEnabled() && UNLOCKED && SESSION_PW){
+    try{ await doEncryptedSave(); }catch(e){}
+  }
+}
+
+/* ---- 解锁 / 密码 ---- */
+async function tryUnlock(password, silent){
+  const blob = readEncBlob();
+  if(!blob) return false;
+  try{
+    const payload = await decryptBlob(blob, password);
+    applyPayload(payload);
+    pruneHistory();
+    SESSION_PW = password; UNLOCKED = true;
+    try{ sessionStorage.setItem(LS_SESS, password); }catch(e){}
+    return true;
+  }catch(e){
+    SESSION_PW = null; UNLOCKED = false;
+    if(!silent) console.warn("解密失败（密码错误或数据损坏）");
+    return false;
+  }
+}
+function lockNow(keepSession){
+  SESSION_PW = null; UNLOCKED = false;
+  if(!keepSession){ try{ sessionStorage.removeItem(LS_SESS); }catch(e){} }
+  // 内存里的敏感内容也清掉
+  S.keys = []; S.results = {}; S.history = {}; S.usage = null; S.usageMeta = null;
+  S.compare = null; UTOKEN = ""; SELECTED.clear();
+  renderAll(); renderUsage(); renderCompare();
+}
+function setMasterPassword(pw, hint){
+  S.settings.encryption = { enabled:true, hint:hint||"", createdAt: Date.now() };
+  SESSION_PW = pw; UNLOCKED = true;
+  try{ sessionStorage.setItem(LS_SESS, pw); }catch(e){}
+  save();
+}
+function disableEncryption(){
+  S.settings.encryption = { enabled:false };
+  SESSION_PW = null; UNLOCKED = false;
+  try{ sessionStorage.removeItem(LS_SESS); }catch(e){}
+  try{ localStorage.removeItem(LS_ENC); }catch(e){}
+  save();
+}
+function updateStoreInfo(){
+  const el = $("#store-info"); if(!el) return;
+  const snaps = Object.values(S.history).reduce((a,b)=>a+b.length,0);
+  let state;
+  if(DEMO) state = T("store.demo");
+  else if(!encEnabled()) state = T("store.plain");
+  else if(UNLOCKED)      state = T("store.encrypted");
+  else                   state = T("store.locked");
+  el.textContent = T("store.summary", S.keys.length, state, snaps);
+  renderLockBadge();
+}
+function renderLockBadge(){
+  const b = $("#badge-lock"); if(!b) return;
+  const t = $("#badge-lock-t");
+  $$("#lang-seg button").forEach(el=> el.classList.toggle("on", el.dataset.setlang === LANG));
+  let cls = "on", label;
+  if(!encEnabled()){ cls = "off"; label = T("lock.off"); }
+  else if(UNLOCKED){ cls = "on";  label = T("lock.on"); }
+  else            { cls = "off"; label = T("lock.locked"); }
+  b.className = "badge " + cls;
+  if(t) t.textContent = label;
+}
+
+
+/* =========================================================================
+   本地数据文件（INI + Windows DPAPI）
+   -------------------------------------------------------------------------
+   浏览器写不了磁盘，但本地服务可以。面板通过 /store 让服务落盘：
+   文件用 DPAPI 加密（密钥绑定当前 Windows 账户），所以**打开就自动解密**，
+   不用输密码；而这个文件拷到别的电脑或别的账户下就是一堆废数据。
+   从 file:// 直接打开、或没起本地服务时，自动退回 localStorage。
+   ========================================================================= */
+let FILE_STORE = null;
+let FILE_ACTIVE = false;
+
+async function fileStoreInit(){
+  if(!SERVED_LOCALLY) return false;
+  let j;
+  try{
+    const r = await fetch("/store", { cache:"no-store" });
+    if(!r.ok) return false;
+    j = await r.json();
+  }catch(e){ return false; }
+  if(!j || !j.available) return false;
+  FILE_STORE = j;
+  FILE_ACTIVE = true;
+  if(j.locked){ askFilePassword(); return false; }
+  if(j.data){ applyPayload(j.data); pruneHistory(); return true; }
+  return false;   // 文件可用但还没有内容：用当前内存里的数据，稍后写进去
+}
+
+function fileStoreSave(){
+  if(!FILE_ACTIVE) return;
+  try{
+    fetch("/store", {
+      method:"PUT", headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify(sensitivePayload())
+    }).then(r => r.ok ? r.json() : null)
+      .then(j => { if(j){ FILE_STORE = Object.assign(FILE_STORE || {}, j); renderFileState(); } })
+      .catch(()=>{});
+  }catch(e){}
+}
+
+function askFilePassword(){
+  openModal(T("fs.unlockTitle"), `
+    <div class="help" style="margin-bottom:14px">${T("fs.unlockTip")}</div>
+    ${(FILE_STORE && FILE_STORE.hint) ? `<div class="notice info" style="margin-bottom:12px">
+      <span class="ico">💡</span><div>${esc(T("pw.hintLabel"))}: <b>${esc(FILE_STORE.hint)}</b></div></div>` : ""}
+    <label class="f"><span class="lb">${esc(T("pw.password"))}</span>
+      <input type="password" id="fspw" autocomplete="current-password"></label>
+    <div id="fs-err"></div>`, async ()=>{
+      const pw = $("#fspw").value;
+      const btn = $("#modal-ok");
+      btn.disabled = true; btn.textContent = T("pw.unlocking");
+      try{
+        const r = await fetch("/store", { method:"POST", headers:{ "Content-Type":"application/json" },
+          body: JSON.stringify({ action:"unlock", password: pw }) });
+        if(r.ok){
+          const j = await r.json();
+          applyPayload(j.data); pruneHistory(); renderAll(); renderUsage(); renderCompare();
+          toast(T("pw.unlocked"));
+          return true;
+        }
+      }catch(e){}
+      btn.disabled = false; btn.textContent = T("pw.unlock");
+      $("#fs-err").innerHTML = `<div class="notice bad" style="margin-top:12px">
+        <span class="ico">⛔</span><div>${esc(T("pw.wrong"))}</div></div>`;
+      return false;
+    }, T("pw.unlock"));
+}
+
+function renderFileState(){
+  const pathEl = $("#fs-path"), stEl = $("#fs-state"), card = $("#card-file");
+  if(!pathEl) return;
+  if(!FILE_ACTIVE){
+    if(card) card.style.display = "none";
+    return;
+  }
+  if(card) card.style.display = "";
+  pathEl.textContent = (FILE_STORE && FILE_STORE.path) || "—";
+  const bits = [];
+  bits.push(FILE_STORE && FILE_STORE.exists ? T("fs.stateSaved") : T("fs.stateEmpty"));
+  if(FILE_STORE && FILE_STORE.mode) bits.push(FILE_STORE.mode);
+  if(FILE_STORE && FILE_STORE.size) bits.push((FILE_STORE.size/1024).toFixed(1)+" KB");
+  if(FILE_STORE && FILE_STORE.updated) bits.push(FILE_STORE.updated);
+  stEl.innerHTML = esc(bits.join(" · "));
+}
+
+async function fileStoreWipe(){
+  if(!confirm(T("fs.wipeConfirm"))) return;
+  try{ await fetch("/store", { method:"DELETE" }); }catch(e){}
+  FILE_STORE = Object.assign(FILE_STORE||{}, { exists:false, data:null, locked:false, mode:"", size:0 });
+  renderFileState();
+  toast(T("fs.wiped"));
+}
+
+/* ---------------- 密码弹窗 ---------------- */
+function renderEncState(){
+  const st = $("#enc-state"), hintEl = $("#enc-hint");
+  if(!st) return;
+  if(!CRYPTO_OK){
+    st.innerHTML = `<span class="pill bad">${esc(T("enc.notSupported").slice(0,20))}…</span>`;
+    notify("bad", T("enc.notSupported"), "enc-note");
+  }else if(encEnabled()){
+    st.innerHTML = UNLOCKED
+      ? `<span class="pill ok">${esc(T("enc.enabled","AES-GCM-256"))}</span>`
+      : `<span class="pill warn">${esc(T("lock.locked"))}</span>`;
+    if(hintEl) hintEl.textContent = (S.settings.encryption.hint || "—");
+    notify("", "", "enc-note");
+    if(PLAIN_LEGACY_FOUND) notify("warn", T("enc.legacyWarn"), "enc-note");
+  }else{
+    st.innerHTML = `<span class="pill mute">${esc(T("enc.disabled"))}</span>`;
+    if(hintEl) hintEl.textContent = "—";
+    if(PLAIN_LEGACY_FOUND) notify("warn", T("enc.legacyWarn"), "enc-note");
+    else notify("", "", "enc-note");
+  }
+  const lockBtn = $("#btn-lock");
+  if(lockBtn) lockBtn.style.display = (encEnabled() && UNLOCKED) ? "" : "none";
+  const offBtn = $("#btn-enc-off"), chgBtn = $("#btn-enc-change");
+  if(offBtn) offBtn.disabled = !encEnabled();
+  if(chgBtn) chgBtn.disabled = !encEnabled();
+}
+
+/** mode: "unlock" | "set" | "change" */
+function passwordModal(mode){
+  if(!CRYPTO_OK){ toast(T("enc.notSupported")); return; }
+  const isUnlock = mode === "unlock";
+  const title = isUnlock ? T("pw.unlockTitle") : (mode === "set" ? T("pw.setTitle") : T("pw.changeTitle"));
+  const tip   = isUnlock ? T("pw.unlockTip")   : (mode === "set" ? T("pw.setTip")   : T("pw.changeTip"));
+  const oldHint = (S.settings.encryption && S.settings.encryption.hint) || "";
+
+  openModal(title, `
+    <div class="help" style="margin-bottom:14px">${tip}</div>
+    ${isUnlock && oldHint ? `<div class="notice info" style="margin-bottom:12px"><span class="ico">💡</span>
+        <div>${esc(T("pw.hintLabel"))}: <b>${esc(oldHint)}</b></div></div>` : ""}
+    ${isUnlock ? "" : `<label class="f"><span class="lb">${esc(T(mode === "change" ? "pw.oldPassword" : "pw.password"))}</span>
+      <input type="password" id="pw-old" autocomplete="current-password"></label>`}
+    <label class="f"><span class="lb">${esc(isUnlock ? T("pw.password") : T("pw.newPassword"))}</span>
+      <input type="password" id="pw-new" autocomplete="${isUnlock ? "current-password" : "new-password"}"></label>
+    ${isUnlock ? "" : `<label class="f"><span class="lb">${esc(T("pw.confirm"))}</span>
+      <input type="password" id="pw-confirm" autocomplete="new-password"></label>
+      <label class="f"><span class="lb">${esc(T("pw.hint"))}</span>
+        <input type="text" id="pw-hint" placeholder="${esc(T("pw.hintPh"))}" value="${esc(oldHint)}"></label>`}
+    <div id="pw-err"></div>
+    ${isUnlock ? `<div class="help" style="margin-top:14px;border-top:1px dashed var(--line);padding-top:10px">
+      ${esc(T("pw.forgot"))} <a href="#" id="pw-wipe">${esc(T("pw.wipe"))}</a></div>` : ""}
+  `, async ()=>{
+    const errBox = $("#pw-err");
+    const fail = m => {
+      errBox.innerHTML = `<div class="notice bad" style="margin-top:12px"><span class="ico">⛔</span><div>${esc(m)}</div></div>`;
+      return false;
+    };
+    const okBtn = $("#modal-ok");
+
+    if(isUnlock){
+      const pw = $("#pw-new").value;
+      if(!pw) return fail(T("pw.empty"));
+      okBtn.disabled = true; okBtn.textContent = T("pw.unlocking");
+      const good = await tryUnlock(pw);
+      okBtn.disabled = false; okBtn.textContent = T("pw.unlock");
+      if(!good) return fail(T("pw.wrong"));
+      renderAll(); renderUsage(); renderCompare(); renderEncState();
+      notify("ok", T("pw.unlocked"));
+      return true;
+    }
+
+    const oldPw = mode === "change" ? $("#pw-old").value : "";
+    const pw = $("#pw-new").value, cf = $("#pw-confirm").value;
+    if(mode === "change"){
+      if(!oldPw) return fail(T("pw.empty"));
+      okBtn.disabled = true; okBtn.textContent = T("pw.working");
+      const blob = readEncBlob();
+      if(blob){
+        try{ await decryptBlob(blob, oldPw); }
+        catch(e){ okBtn.disabled = false; okBtn.textContent = T("pw.changeBtn"); return fail(T("pw.wrong")); }
+      }
+      okBtn.disabled = false;
+    }
+    if(!pw) return fail(T("pw.empty"));
+    if(pw.length < MIN_PW_LEN) return fail(T("pw.tooShort", MIN_PW_LEN));
+    if(pw !== cf) return fail(T("pw.mismatch"));
+
+    okBtn.disabled = true; okBtn.textContent = T("pw.working");
+    const hintVal = ($("#pw-hint") && $("#pw-hint").value.trim()) || "";
+    setMasterPassword(pw, hintVal);
+    await doEncryptedSave();
+    okBtn.disabled = false; okBtn.textContent = T("pw.setBtn");
+    renderEncState(); updateStoreInfo();
+    toast(T(mode === "set" ? "pw.saved" : "pw.changed"));
+    return true;
+  }, isUnlock ? T("pw.unlock") : T("pw.setBtn"));
+
+  const wipe = $("#pw-wipe");
+  if(wipe) wipe.onclick = e=>{
+    e.preventDefault();
+    if(!confirm(T("pw.wipeConfirm"))) return;
+    try{ localStorage.removeItem(LS_ENC); }catch(_e){}
+    disableEncryption();
+    closeModal(); renderEncState(); renderAll(); updateStoreInfo();
+    toast(T("pw.wiped"));
+  };
+}
+function askPassword(){ passwordModal("unlock"); }
+
+/* ---------------- 中转检测 ---------------- */
+let RELAY_OK = false;
+function relayBase(){ return (S.settings.relay||"").trim().replace(/\/+$/,""); }
+function relayProxy(targetUrl){
+  return `${relayBase()}/proxy?url=${encodeURIComponent(targetUrl)}`;
+}
+async function pingRelay(base, timeoutMs=1200){
+  const ctl = new AbortController();
+  const t = setTimeout(()=>ctl.abort(), timeoutMs);
+  try{
+    const r = await fetch(base.replace(/\/+$/,"")+"/health", {signal:ctl.signal, cache:"no-store"});
+    if(!r.ok) return false;
+    const j = await r.json();
+    return !!(j && j.ok);
+  }catch(e){ return false; }
+  finally{ clearTimeout(t); }
+}
+async function detectRelay(quiet){
+  const tried = [];
+  // 1) 用户配置的地址优先
+  const configured = relayBase();
+  if(configured && await pingRelay(configured)) { RELAY_OK=true; renderBadges(); if(!quiet) toast("中转已连接"); return true; }
+  tried.push(configured);
+  // 2) 扫端口
+  for(const p of RELAY_PROBE){
+    const base = `http://127.0.0.1:${p}`;
+    if(base===configured) continue;
+    if(await pingRelay(base)){ S.settings.relay=base; RELAY_OK=true; save(); renderBadges(); if(!quiet) toast("已自动发现中转 "+base); return true; }
+  }
+  RELAY_OK=false; renderBadges(); return false;
+}
+/** 决定本次用哪条通道：返回 'relay' | 'direct' */
+async function resolveMode(){
+  const m = S.settings.mode;
+  if(m==="direct") return "direct";
+  if(m==="relay"){ if(!RELAY_OK) await detectRelay(true); return "relay"; }
+  if(!RELAY_OK) await detectRelay(true);
+  return RELAY_OK ? "relay" : "direct";
+}
+function renderBadges(){
+  const bm=$("#badge-mode"), br=$("#badge-relay");
+  const m=S.settings.mode;
+  const label = m==="direct" ? "直连模式（仅余额）" : m==="relay" ? "中转模式" :
+    (RELAY_OK ? "自动 · 走中转" : "自动 · 直连");
+  $("#badge-mode-t").textContent = label;
+  bm.className = "badge " + ((m==="direct"||RELAY_OK) ? "on" : "off");
+  $("#badge-relay-t").textContent = RELAY_OK ? ("中转在线 · " + relayBase().replace(/^https?:\/\//,"")) : "中转未连接";
+  br.className = "badge " + (RELAY_OK?"on":"off");
+}
+
+/* ---------------- 请求封装 ---------------- */
+function newCtl(ms){
+  const c = new AbortController();
+  INFLIGHT.add(c);
+  const t = setTimeout(()=>{ try{c.abort(new DOMException("timeout","TimeoutError")); }catch(e){ try{c.abort();}catch(_){} } }, ms);
+  return { c, done(){ clearTimeout(t); INFLIGHT.delete(c); } };
+}
+function abortAll(reason){
+  for(const c of Array.from(INFLIGHT)){ try{ c.abort(new DOMException(reason||"aborted","AbortError")); }catch(e){ try{c.abort();}catch(_){} } }
+  INFLIGHT.clear();
+}
+
+/** 查询单个 Key 的余额 */
+async function fetchBalance(key, mode){
+  const timeout = Math.max(3, Number(S.settings.timeout)||20)*1000;
+  const retries = Math.max(0, Number(S.settings.retries)||0);
+  const target = mode==="relay" ? relayProxy(BALANCE_URL) : BALANCE_URL;
+  let lastErr = null;
+  for(let i=0;i<=retries;i++){
+    const h = newCtl(timeout);
+    try{
+      const r = await fetch(target, {
+        method:"GET",
+        headers:{ "Authorization":"Bearer "+key, "Accept":"application/json" },
+        credentials:"omit", cache:"no-store", signal:h.c.signal
+      });
+      const text = await r.text();
+      let data=null; try{ data = JSON.parse(text); }catch(e){}
+      return classify(r.status, data, text);
+    }catch(e){
+      lastErr = e;
+      const aborted = e && (e.name==="AbortError"||e.name==="TimeoutError");
+      // 用户主动停止：不当作失败，交给 runQuery 统一还原原状态
+      if(aborted && /user/i.test(String(e.message||""))) return { status:"stopped" };
+      if(i===retries){
+        const isTimeout = aborted;
+        return { status: isTimeout?"network":"network",
+          error: isTimeout ? `请求超时（${(timeout/1000)|0}s）`
+                           : (mode==="relay" ? "连不上本地中转服务" : "浏览器直连被拦截（跨域/离线）"),
+          detail: String(e && e.message || e) };
+      }
+    }finally{ h.done(); }
+  }
+  return { status:"error", error:"未知错误", detail:String(lastErr&&lastErr.message||lastErr||"") };
+}
+function classify(http, data, rawText){
+  const apiMsg = data && data.error && (data.error.message || data.error.code);
+  const reqId  = (apiMsg && /request_id:\s*([\w-]+)/.exec(apiMsg)||[])[1] || null;
+  const out = { http, apiMsg: apiMsg||null, requestId: reqId, raw: (rawText||"").slice(0,400) };
+  if(http===200 && data && Array.isArray(data.balance_infos)){
+    const infos = data.balance_infos.map(b=>({
+      currency:b.currency, total:b.total_balance, granted:b.granted_balance, topped:b.topped_up_balance
+    }));
+    return Object.assign(out, { status: data.is_available ? "ok" : "low", infos,
+      isAvailable: !!data.is_available });
+  }
+  if(http===401) return Object.assign(out,{status:"invalid"});
+  if(http===402) return Object.assign(out,{status:"invalid", error:"余额不足，无法调用（402）"});
+  if(http===429) return Object.assign(out,{status:"ratelimit"});
+  if(http>=500)  return Object.assign(out,{status:"server"});
+  if(http===200 && data && data.code && data.code!==0)
+    return Object.assign(out,{status:"error", error:data.msg||("code "+data.code)});
+  return Object.assign(out,{status:"error", error: apiMsg || ("HTTP "+http)});
+}
+
+/* ---------------- 余额预警 ---------------- */
+/** 该 Key 当前是否跌破预警阈值，返回触发的币种明细 */
+function warnHits(r){
+  const th = Number(S.settings.warnThreshold)||0;
+  if(th<=0 || !r || !Array.isArray(r.infos)) return [];
+  return r.infos.filter(b=>Number(b.total) < th)
+                .map(b=>({ currency:b.currency, total:Number(b.total) }));
+}
+function isLowKey(k){ return warnHits(S.results[k.id]||{}).length>0; }
+
+const NOTIFIED = new Set();   // 已提醒过的 Key，避免每次刷新都轰炸
+async function ensureNotifyPermission(){
+  if(!("Notification" in window)) return false;
+  if(Notification.permission==="granted") return true;
+  if(Notification.permission==="denied") return false;
+  try{ return (await Notification.requestPermission())==="granted"; }catch(e){ return false; }
+}
+function fireWarnNotifications(list){
+  if(!S.settings.notifyOnWarn || !("Notification" in window) || Notification.permission!=="granted") return;
+  const th = Number(S.settings.warnThreshold)||0;
+  list.forEach(k=>{
+    const hits = warnHits(S.results[k.id]||{});
+    if(!hits.length) return;
+    if(NOTIFIED.has(k.id)) return;
+    NOTIFIED.add(k.id);
+    const body = hits.map(h=>`${h.currency} ${h.total.toFixed(2)}`).join(" / ") + `（低于阈值 ${th}）`;
+    try{ new Notification("⚠️ DeepSeek 余额预警："+(k.name||maskKey(k.key)), { body, tag:"dskp-"+k.id }); }catch(e){}
+  });
+  // 余额回到阈值以上就复位，方便下次真的跌下来时再提醒
+  S.keys.forEach(k=>{ if(!warnHits(S.results[k.id]||{}).length) NOTIFIED.delete(k.id); });
+}
+
+/* ---------------- 可用性实测 ---------------- */
+/** 深度实测：真实调用一次 chat completions（max_tokens=1），会产生极少量费用 */
+async function chatProbe(key, mode, model, timeout){
+  const t0 = performance.now();
+  const h = newCtl(timeout);
+  try{
+    const r = await fetch(mode==="relay" ? relayProxy(CHAT_URL) : CHAT_URL, {
+      method:"POST",
+      headers:{ "Authorization":"Bearer "+key, "Content-Type":"application/json", Accept:"application/json" },
+      body: JSON.stringify({ model: model||"deepseek-chat",
+                             messages:[{ role:"user", content:"ping" }], max_tokens:1, stream:false }),
+      credentials:"omit", cache:"no-store", signal:h.c.signal });
+    const txt = await r.text();
+    let j=null; try{ j=JSON.parse(txt); }catch(e){}
+    const ms = Math.round(performance.now()-t0);
+    if(r.status!==200){
+      const c = classify(r.status, j, txt);
+      return { ok:false, ms, error: c.apiMsg || ("HTTP "+r.status) };
+    }
+    const reply = j && j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content;
+    return { ok:true, ms, reply: String(reply||"").slice(0,40) };
+  }catch(e){
+    return { ok:false, ms:Math.round(performance.now()-t0), error:String(e&&e.message||e) };
+  }finally{ h.done(); }
+}
+/** 快速实测：GET /models —— 验证 Key 能否通过鉴权并真正访问 API，不消耗 token */
+async function probeKey(key, mode, deep, model){
+  const timeout = Math.max(3, Number(S.settings.timeout)||20)*1000;
+  const t0 = performance.now();
+  const h = newCtl(timeout);
+  try{
+    const r = await fetch(mode==="relay" ? relayProxy(MODELS_URL) : MODELS_URL, {
+      headers:{ "Authorization":"Bearer "+key, Accept:"application/json" },
+      credentials:"omit", cache:"no-store", signal:h.c.signal });
+    const txt = await r.text();
+    let j=null; try{ j=JSON.parse(txt); }catch(e){}
+    const ms = Math.round(performance.now()-t0);
+    if(r.status!==200){
+      const c = classify(r.status, j, txt);
+      return { ok:false, http:r.status, ts:Date.now(), ms, status:c.status,
+               error: c.apiMsg || ("HTTP "+r.status) };
+    }
+    const models = (j && Array.isArray(j.data)) ? j.data.map(m=>m.id).filter(Boolean) : [];
+    const out = { ok:true, http:200, ts:Date.now(), ms, models };
+    if(deep){
+      const chat = await chatProbe(key, mode, model, timeout);
+      Object.assign(out, { deep:true, chatOk:chat.ok, chatMs:chat.ms,
+                           chatError:chat.error||null, chatReply:chat.reply||null });
+      if(!chat.ok) out.ok = false;
+    }
+    return out;
+  }catch(e){
+    return { ok:false, ts:Date.now(), ms:Math.round(performance.now()-t0), status:"network",
+             error: mode==="relay" ? "连不上本地中转服务" : "浏览器直连被拦截（跨域/离线）",
+             detail: String(e&&e.message||e) };
+  }finally{ h.done(); }
+}
+async function runProbe(list){
+  if(RUNNING || !list.length) return;
+  const mode = await resolveMode();
+  const deep = !!S.settings.probeDeep;
+  if(deep && !confirm(
+      `深度实测会为每个 Key 真实调用一次 ${S.settings.probeModel}（max_tokens=1）。\n`+
+      `共 ${list.length} 个 Key，会产生极少量费用，但能确认「这个 Key 真的能调模型」。\n\n确定继续？`)) return;
+  RUNNING = true; updateToolbar();
+  const queue = list.slice();
+  const n = Math.max(1, Math.min(Number(S.settings.concurrency)||4, queue.length));
+  const workers = Array.from({length:n}, ()=> (async function work(){
+    while(RUNNING && queue.length){
+      const item = queue.shift();
+      S.results[item.id] = Object.assign({}, S.results[item.id], { probing:true });
+      renderTable();
+      const live = await probeKey(item.key, mode, deep, S.settings.probeModel);
+      S.results[item.id] = Object.assign({}, S.results[item.id], { probing:false, live, via:mode });
+      renderTable();
+    }
+  })());
+  await Promise.all(workers);
+  RUNNING = false; updateToolbar(); save(); renderAll();
+  const okN = list.filter(k=>((S.results[k.id]||{}).live||{}).ok).length;
+  toast(`实测完成：${okN}/${list.length} 个 Key 验证通过`);
+}
+
+/* ---------------- 弹窗 ---------------- */
+let MODAL_OK = null;
+function openModal(title, bodyHtml, onOk, okText){
+  $("#modal-title").textContent = title;
+  $("#modal-body").innerHTML = bodyHtml;
+  const okBtn = $("#modal-ok");
+  okBtn.textContent = okText || "保存";
+  okBtn.style.display = onOk ? "" : "none";
+  MODAL_OK = onOk || null;
+  $("#modal-mask").classList.add("show");
+  setTimeout(()=>{ const f = $("#modal-body input, #modal-body textarea"); if(f) f.focus(); }, 40);
+}
+function closeModal(){ $("#modal-mask").classList.remove("show"); MODAL_OK = null; }
+function openEditModal(id){
+  const k = S.keys.find(x=>x.id===id); if(!k) return;
+  const cur = new Set(k.tags||[]);
+  const known = allTags().map(t=>t[0]);
+  const chips = known.length
+    ? known.map(t=>`<span class="tagpick ${cur.has(t)?"on":""}" data-tag="${esc(t)}">${esc(t)}</span>`).join("")
+    : `<span class="muted" style="font-size:12px">还没有任何标签 —— 直接在输入框里打，例如「生产, 客户A」</span>`;
+  openModal("编辑 Key", `
+    <label class="f"><span class="lb">名称</span><input type="text" id="ed-name" value="${esc(k.name)}"></label>
+    <label class="f"><span class="lb">备注</span>
+      <input type="text" id="ed-note" value="${esc(k.note)}" placeholder="例如：9月充值 / 客户A专用"></label>
+    <label class="f"><span class="lb">API Key</span>
+      <input type="text" id="ed-key" value="${esc(k.key)}" class="mono"></label>
+    <label class="f"><span class="lb">标签（逗号或空格分隔；点下面的标签可直接增删）</span>
+      <input type="text" id="ed-tags" value="${esc((k.tags||[]).join(", "))}" placeholder="生产, 测试, 客户A">
+      <div class="tagbox" id="ed-tagbox">${chips}</div>
+    </label>`, ()=>{
+      const nk = $("#ed-key").value.trim();
+      if(!nk){ toast("API Key 不能为空"); return false; }
+      const dup = S.keys.find(x=>x.id!==id && x.key===nk);
+      if(dup){ toast("这个 Key 已经在列表里了（"+(dup.name||maskKey(nk))+"）"); return false; }
+      k.name = $("#ed-name").value.trim() || maskKey(nk);
+      k.note = $("#ed-note").value.trim();
+      k.key  = nk;
+      k.tags = $("#ed-tags").value.split(/[,，\s]+/).map(s=>s.trim()).filter(Boolean);
+      save(); renderAll(); toast("已保存");
+      return true;
+    }, "保存");
+  $("#ed-tagbox").addEventListener("click", e=>{
+    const chip = e.target.closest(".tagpick"); if(!chip) return;
+    const t = chip.dataset.tag, box = $("#ed-tags");
+    let arr = box.value.split(/[,，\s]+/).map(s=>s.trim()).filter(Boolean);
+    if(arr.includes(t)) arr = arr.filter(x=>x!==t); else arr.push(t);
+    box.value = arr.join(", ");
+    chip.classList.toggle("on", arr.includes(t));
+  });
+}
+
+/* ---------------- 备份 / 恢复 / 批量清理 ---------------- */
+function exportBackup(){
+  const data = { app:"deepseek-key-panel", version:1, exportedAt:new Date().toISOString(),
+    settings:S.settings, keys:S.keys, history:S.history, results:S.results,
+    platformToken: UTOKEN || undefined, usage:S.usage, usageMeta:S.usageMeta, compare:S.compare };
+  download(`dskp-backup-${fmtDay(Date.now())}.json`, JSON.stringify(data,null,2), "application/json");
+  toast("完整备份已导出（含明文 Key，请妥善保管）");
+}
+function importBackup(file){
+  const rd = new FileReader();
+  rd.onload = ()=>{
+    let j=null; try{ j = JSON.parse(String(rd.result||"")); }catch(e){}
+    if(!j || j.app!=="deepseek-key-panel"){ toast("这不是本面板导出的备份文件"); return; }
+    const snap = Object.values(j.history||{}).reduce((a,b)=>a+(Array.isArray(b)?b.length:0),0);
+    if(!confirm(`将用备份覆盖当前数据：\n\n· Key ${Array.isArray(j.keys)?j.keys.length:0} 个\n`+
+                `· 历史快照 ${snap} 条\n· 设置会被替换\n\n当前数据将被覆盖，确定继续？`)) return;
+    S.keys      = (Array.isArray(j.keys)?j.keys:[]).map(normKey).filter(x=>x.key);
+    S.history   = (j.history && typeof j.history==="object") ? j.history : {};
+    S.results   = (j.results && typeof j.results==="object") ? j.results : {};
+    S.settings  = Object.assign(defaultSettings(), j.settings||{});
+    S.usage     = j.usage || null;
+    S.usageMeta = j.usageMeta || null;
+    S.compare   = j.compare || null;
+    UTOKEN      = j.platformToken || "";
+    SELECTED.clear();
+    save(); applySettingsToUI(); setupAutoRefresh(); renderAll(); renderUsage(); renderCompare();
+    toast(`备份已恢复：${S.keys.length} 个 Key`);
+  };
+  rd.readAsText(file, "utf-8");
+}
+/** 导出当前筛选结果的纯 Key 列表（明文，一行一个，可直接喂给别的工具） */
+function exportKeyList(){
+  const list = visibleKeys();
+  if(!list.length){ toast("当前筛选结果为空"); return; }
+  if(!confirm(`将导出 ${list.length} 个 Key 的【明文】列表（txt，一行一个）。\n\n`+
+              `任何拿到这个文件的人都等于拿到了你的 Key，确定？`)) return;
+  const lines = list.map(k=>{
+    const nm = (k.name||"").replace(/[\r\n,]+/g," ").trim();
+    return nm ? `${nm},${k.key}` : k.key;
+  });
+  download(`dskp-keys-${fmtDay(Date.now())}.txt`, lines.join("\r\n")+"\r\n", "text/plain;charset=utf-8");
+  toast(`已导出 ${list.length} 个明文 Key`);
+}
+/** 清理确定无效（401）的 Key —— 余额不足、限流、网络失败的都不动 */
+function cleanInvalid(){
+  const bad = S.keys.filter(k=>(S.results[k.id]||{}).status==="invalid");
+  if(!bad.length){ toast("没有检测到无效 Key（先跑一次查询或实测）"); return; }
+  const preview = bad.slice(0,8).map(k=>"· "+(k.name||maskKey(k.key))).join("\n");
+  if(!confirm(`将从列表移除 ${bad.length} 个返回 401 的无效 Key：\n\n${preview}`+
+              `${bad.length>8?"\n…":""}\n\n余额不足 / 限流 / 网络失败的不会被删。确定？`)) return;
+  const ids = new Set(bad.map(k=>k.id));
+  S.keys = S.keys.filter(k=>!ids.has(k.id));
+  ids.forEach(id=>{ delete S.results[id]; delete S.history[id]; SELECTED.delete(id); });
+  save(); renderAll(); toast(`已清理 ${bad.length} 个无效 Key`);
+}
+/** 按状态批量选中，方便接着做批量操作 */
+function selectByStatus(statuses){
+  SELECTED.clear();
+  S.keys.forEach(k=>{ if(statuses.includes((S.results[k.id]||{}).status)) SELECTED.add(k.id); });
+  renderTable(); renderStats();
+}
+function renderTagFilter(){
+  const sel = $("#filter-tag"); if(!sel) return;
+  const prev = sel.value;
+  const tags = allTags();
+  sel.innerHTML = `<option value="">全部标签</option>` +
+    tags.map(([t,n])=>`<option value="${esc(t)}">${esc(t)}（${n}）</option>`).join("");
+  if(prev && tags.some(([t])=>t===prev)) sel.value = prev;
+}
+
+/* ---------------- 批量查询 ---------------- */
+function visibleKeys(){
+  const q = $("#filter-text").value.trim().toLowerCase();
+  const f = $("#filter-status").value;
+  const tagEl = $("#filter-tag");
+  const tag = tagEl ? tagEl.value : "";
+  return S.keys.filter(k=>{
+    if(tag && !(k.tags||[]).includes(tag)) return false;
+    if(q){
+      const hay = [k.name, k.key, k.note, (k.tags||[]).join(" ")].join(" ").toLowerCase();
+      if(!hay.includes(q)) return false;
+    }
+    const r = S.results[k.id] || {};
+    const st = r.status || "unchecked";
+    switch(f){
+      case "all":      return true;
+      case "unchecked":return st==="unchecked";
+      case "ok":       return st==="ok";
+      case "warn":     return ["low","invalid","ratelimit","network","server","error"].includes(st);
+      case "lowbal":   return warnHits(r).length>0;
+      case "liveok":   return !!(r.live && r.live.ok);
+      case "livefail": return !!(r.live && !r.live.ok);
+      case "tagged":   return (k.tags||[]).length>0;
+      default:         return true;
+    }
+  });
+}
+async function runQuery(list){
+  if(RUNNING || !list.length) return;
+  RUNNING = true; updateToolbar();
+  const mode = await resolveMode();
+  if(mode==="relay" && !RELAY_OK && S.settings.mode!=="relay"){ /* 已回落直连 */ }
+  const queue = list.slice();
+  // 记下原状态，停止时好还原（避免点一下「停止」把在飞的 Key 全刷成失败）
+  const before = {};
+  list.forEach(k=>{ before[k.id] = (S.results[k.id]||{}).status || "unchecked"; });
+  list.forEach(k=>{ S.results[k.id] = Object.assign({}, S.results[k.id], {status:"running"}); });
+  renderTable(); renderStats();
+
+  const n = Math.max(1, Math.min(Number(S.settings.concurrency)||4, queue.length));
+  const workers = Array.from({length:n}, ()=> (async function work(){
+    while(RUNNING && queue.length){
+      const item = queue.shift();
+      const res = await fetchBalance(item.key, mode);
+      if(res.status==="stopped") continue;      // 状态占位留着，结束时统一还原
+      const prev = S.results[item.id] || {};
+      S.results[item.id] = Object.assign({}, prev, res, { ts:Date.now(), via:mode });
+      if(res.status==="ok" || res.status==="low") recordHistory(item.id, res.infos);
+      renderTable(); renderStats();
+    }
+  })());
+
+  await Promise.all(workers);
+  // 还原被中断而停留在 running 的条目
+  list.forEach(k=>{
+    const r = S.results[k.id];
+    if(!r || r.status!=="running") return;
+    if(before[k.id]==="unchecked") delete S.results[k.id];
+    else S.results[k.id] = Object.assign({}, r, { status: before[k.id] });
+  });
+
+  RUNNING = false; updateToolbar(); save(); renderAll();
+  fireWarnNotifications(list);
+  const okc = list.filter(k=>["ok","low"].includes((S.results[k.id]||{}).status)).length;
+  toast(`完成：${list.length} 个 Key，${okc} 个查询成功`);
+}
+function recordHistory(id, infos){
+  if(!infos || !infos.length) return;
+  const arr = S.history[id] || (S.history[id]=[]);
+  const t = Date.now();
+  infos.forEach(b=>{
+    const v = Number(b.total);
+    if(!isFinite(v)) return;
+    const last = arr[arr.length-1];
+    if(last && last.c===b.currency && last.v===v && (t-last.t) < 60000) return; // 1 分钟内同值不重复记
+    arr.push({ t, c:b.currency||"CNY", v, g:Number(b.granted)||0, p:Number(b.topped)||0 });
+  });
+  if(arr.length>MAX_HISTORY) arr.splice(0, arr.length-MAX_HISTORY);
+}
+function updateToolbar(){
+  $("#btn-query-all").disabled = RUNNING || !S.keys.length;
+  $("#btn-query-sel").disabled = RUNNING || !SELECTED.size;
+  $("#btn-stop").disabled = !RUNNING;
+  const bp = $("#btn-probe-all"); if(bp) bp.disabled = RUNNING || !S.keys.length;
+  const bs = $("#btn-probe-sel"); if(bs) bs.disabled = RUNNING || !SELECTED.size;
+}
+
+/* ---------------- 渲染：统计 ---------------- */
+function renderStats(){
+  const box = $("#stats");
+  const tot = S.keys.length;
+  let ok=0, bad=0, unchecked=0, lowN=0, liveN=0, liveOk=0;
+  const sums = {};   // currency -> {total, granted, topped}
+  for(const k of S.keys){
+    const r = S.results[k.id]||{};
+    const st = r.status||"unchecked";
+    if(st==="ok") ok++;
+    else if(st==="unchecked") unchecked++;
+    else if(["low","invalid","ratelimit","network","server","error"].includes(st)) bad++;
+    if(warnHits(r).length) lowN++;
+    if(r.live){ liveN++; if(r.live.ok) liveOk++; }
+    if((st==="ok"||st==="low") && Array.isArray(r.infos))
+      r.infos.forEach(b=>{
+        const s = sums[b.currency] || (sums[b.currency]={total:0,granted:0,topped:0});
+        s.total+=Number(b.total)||0; s.granted+=Number(b.granted)||0; s.topped+=Number(b.topped)||0;
+      });
+  }
+  const curList = Object.keys(sums);
+  // 合计余额卡片：数字单独一行，明细另起一行 —— 否则窄卡片里「赠送」会被拆成两行
+  const balanceHtml = curList.length
+    ? curList.map((c,i)=>`${i?'<div style="height:8px"></div>':''}
+        <div class="v" style="font-size:19px">${money(sums[c].total,c)}
+          <span style="font-size:11.5px;font-weight:400;color:var(--fg3)">${esc(c)}</span></div>
+        <div class="s">赠送 ${money(sums[c].granted,c)} · 充值 ${money(sums[c].topped,c)}</div>`).join("")
+    : `<div class="v" style="font-size:15px;color:var(--fg3)">尚未查到余额</div>`;
+  box.innerHTML = `
+    <div class="stat"><div class="k">KEY 总数</div><div class="v">${tot}</div><div class="s">已选 ${SELECTED.size} 个</div></div>
+    <div class="stat ok"><div class="k">可用</div><div class="v">${ok}</div><div class="s">is_available = true</div></div>
+    <div class="stat bad"><div class="k">异常</div><div class="v">${bad}</div><div class="s">无效 / 限流 / 网络</div></div>
+    <div class="stat ${lowN?"warn":""}"><div class="k">余额预警</div><div class="v">${lowN}</div>
+      <div class="s">${Number(S.settings.warnThreshold)>0?`低于 ${S.settings.warnThreshold} 的 Key`:"未设阈值（设置页可开）"}</div></div>
+    <div class="stat ${liveN&&liveOk===liveN?"ok":liveN?"warn":""}"><div class="k">实测通过</div>
+      <div class="v" style="font-size:19px">${liveN?`${liveOk}/${liveN}`:"—"}</div>
+      <div class="s">${liveN?"鉴权 + 模型列表验证":"尚未实测"}</div></div>
+    <div class="stat"><div class="k">合计余额</div><div class="v" style="font-size:15px">${balanceHtml}</div>
+      <div class="s">${unchecked?`${unchecked} 个未查询`:"全部已查询"}</div></div>`;
+}
+function statusPill(st){
+  const s = STATUS[st] || STATUS.error;
+  const spin = st==="running" ? '<span class="spin"></span>' : s.ico;
+  return `<span class="pill ${s.c}">${spin} ${esc(T("status."+st))}</span>`;
+}
+
+/* ---------------- 渲染：表格 ---------------- */
+function renderTable(){
+  const tb = $("#tbody");
+  const list = visibleKeys();
+  if(!S.keys.length){
+    tb.innerHTML = `<tr><td colspan="7" class="empty">还没有 Key。点开上面「导入 Key」开始。</td></tr>`;
+    $("#table-foot").textContent=""; updateToolbar(); return;
+  }
+  if(!list.length){
+    tb.innerHTML = `<tr><td colspan="7" class="empty">没有符合筛选条件的 Key。</td></tr>`;
+    $("#table-foot").textContent=`共 ${S.keys.length} 个，筛选后 0 个`; updateToolbar(); return;
+  }
+  const reveal = !!S.settings.reveal;
+  const th = Number(S.settings.warnThreshold)||0;
+  tb.innerHTML = list.map(k=>{
+    const r = S.results[k.id]||{};
+    const st = r.status || "unchecked";
+    const live = r.live;
+    const hits = warnHits(r);
+    let bal = `<span class="muted">—</span>`;
+    if(Array.isArray(r.infos) && r.infos.length){
+      bal = r.infos.map(b=>{
+        const low = th>0 && Number(b.total) < th;
+        return `<div style="font-variant-numeric:tabular-nums"><b class="${low?"warnline":""}">${money(b.total,b.currency)}</b>
+        <span class="muted" style="font-size:11.5px">· 赠送 ${money(b.granted,b.currency)} · 充值 ${money(b.topped,b.currency)}</span>${
+        low?' <span class="pill warn" style="font-size:10.5px">预警</span>':""}</div>`;
+      }).join("");
+    }else if(r.error){
+      bal = `<span class="muted" style="font-size:12px">${esc(r.error)}</span>`;
+    }
+    // 实测结果
+    let liveHtml = "";
+    if(r.probing) liveHtml = `<div class="live mute"><span class="spin"></span> 实测中…</div>`;
+    else if(live){
+      if(live.ok){
+        const md = (live.models && live.models.length) ? `${live.models.length} 个模型` : "鉴权通过";
+        liveHtml = `<div class="live ok" title="${esc((live.models||[]).join(", "))}">✔ 实测 ${md} · ${live.ms}ms${
+          live.deep?` · 真实调用 ${live.chatMs}ms`:""}</div>`;
+      }else{
+        liveHtml = `<div class="live bad" title="${esc([live.error,live.detail].filter(Boolean).join(" · "))}">✘ 实测不通过：${
+          esc(String(live.error||"").slice(0,38))}</div>`;
+      }
+    }
+    const title = [r.apiMsg, r.detail, r.requestId?("request_id: "+r.requestId):""].filter(Boolean).join(" · ");
+    const tags = (k.tags||[]).length
+      ? `<div>${(k.tags||[]).map(t=>`<span class="tagchip">${esc(t)}</span>`).join("")}</div>` : "";
+    const rowCls = hits.length ? "row-warn"
+                 : (["invalid","network","server"].includes(st) ? "row-bad" : "");
+    return `<tr data-id="${k.id}" class="${rowCls}">
+      <td><input type="checkbox" class="row-check" data-id="${k.id}" ${SELECTED.has(k.id)?"checked":""} style="width:15px;height:15px;accent-color:var(--accent)"></td>
+      <td><span title="${esc(k.note||"")}">${esc(k.name||"—")}</span>${k.note?`<div class="muted" style="font-size:11px">${esc(k.note)}</div>`:""}${tags}</td>
+      <td class="mono" title="${esc(k.key)}">${esc(reveal?k.key:maskKey(k.key))}
+        <button class="btn sm ghost act-eye" data-id="${k.id}" title="临时显示/隐藏">${reveal?"🙈":"👁"}</button>
+        <button class="btn sm ghost act-copy" data-id="${k.id}" title="复制完整 Key">⧉</button></td>
+      <td>${statusPill(st)}${st==="running"?"":`<div class="muted" style="font-size:11px;margin-top:3px">${ago(r.ts)}</div>`}${liveHtml}</td>
+      <td>${bal}</td>
+      <td class="muted" style="font-size:12px">${fmtTime(r.ts)}${r.via?`<div style="font-size:11px">${r.via==="relay"?"经中转":"直连"}</div>`:""}</td>
+      <td>
+        <button class="btn sm act-query" data-id="${k.id}">查询</button>
+        <button class="btn sm act-probe" data-id="${k.id}" title="GET /models 验证 Key 是否真的能用（不花 token）">实测</button>
+        <button class="btn sm ghost act-edit" data-id="${k.id}">编辑</button>
+        <button class="btn sm danger ghost act-del" data-id="${k.id}">删</button>
+      </td>
+    </tr>`;
+  }).join("") || `<tr><td colspan="7" class="empty">无数据</td></tr>`;
+
+  const checked = S.keys.filter(k=>["ok","low"].includes((S.results[k.id]||{}).status)).length;
+  $("#table-foot").innerHTML = `共 ${S.keys.length} 个 Key，显示 ${list.length} 个，已成功查询 ${checked} 个。` +
+    (checked< S.keys.length ? ` <a href="#" id="foot-query-rest">查询剩下的 ${S.keys.length-checked} 个</a>` : "");
+  const fo = $("#foot-query-rest");
+  if(fo) fo.onclick = e=>{ e.preventDefault();
+    runQuery(S.keys.filter(k=>!["ok","low"].includes((S.results[k.id]||{}).status))); };
+  $("#check-all").checked = list.length>0 && list.every(k=>SELECTED.has(k.id));
+  updateToolbar();
+}
+
+/* ---------------- 渲染：用量 ---------------- */
+function renderChartKeyOptions(){
+  const sel = $("#chart-key"), prev = sel.value;
+  const withHist = S.keys.filter(k=>(S.history[k.id]||[]).length);
+  sel.innerHTML = withHist.length
+    ? withHist.map(k=>`<option value="${k.id}">${esc(k.name||maskKey(k.key))}（${(S.history[k.id]||[]).length} 条快照）</option>`).join("")
+    : `<option value="">（还没有任何快照）</option>`;
+  if(prev && withHist.some(k=>k.id===prev)) sel.value = prev;
+}
+function computeSpend(entries, days){
+  const sorted = entries.slice().sort((a,b)=>a.t-b.t);
+  const since = days>0 ? Date.now()-days*86400e3 : 0;
+  const series = sorted.filter(e=>e.t>=since);          // 窗口内的点（画图用）
+  // 算增量时把「窗口前最后一条快照」当作基准，否则跨越窗口边界的充值/消耗会被漏掉
+  let start = 0;
+  if(since>0){
+    const i = sorted.findIndex(e=>e.t>=since);
+    start = i>0 ? i-1 : 0;
+  }
+  const calc = sorted.slice(start);
+  let spent=0, recharge=0; const recharges=[];
+  for(let i=1;i<calc.length;i++){
+    if(calc[i].t < since) continue;                     // 只有落点在窗口内的变动才算
+    const d = calc[i].v - calc[i-1].v;
+    if(d<0) spent += -d;
+    else if(d>0){ recharge += d; recharges.push({ t:calc[i].t, v:calc[i].v, amount:d }); }
+  }
+  return { spent, recharge, first:series[0]||null, last:series[series.length-1]||null,
+           n:series.length, recharges, series, baseline: start>0 ? sorted[start] : null };
+}
+function renderSpend(){
+  const id = $("#chart-key").value;
+  const days = Number($("#chart-range").value)||0;
+  const stats = $("#spend-stats"), cv = $("#chart-balance");
+  if(!id){ stats.innerHTML = `<div class="stat"><div class="k">暂无数据</div><div class="v" style="font-size:15px">—</div>
+    <div class="s">先在上面的表格里查询一次余额</div></div>`;
+    clearCanvas(cv); return; }
+  const entries = S.history[id]||[];
+  const cur = entries.length? entries[entries.length-1].c : "CNY";
+  const all = computeSpend(entries, 0);
+  const win = computeSpend(entries, days);
+  const dailyRate = win.spent>0 && days>0 ? win.spent/days : 0;
+  const runway = dailyRate>0 && win.last ? win.last.v/dailyRate : null;
+  stats.innerHTML = `
+    <div class="stat"><div class="k">当前余额</div><div class="v">${win.last?money(win.last.v,cur):"—"}</div>
+      <div class="s">${win.last?fmtTime(win.last.t):""}</div></div>
+    <div class="stat warn"><div class="k">${days>0?`近 ${days} 天`:"累计"}消耗</div><div class="v">${money(win.spent,cur)}</div>
+      <div class="s">${win.n} 个快照</div></div>
+    <div class="stat ok"><div class="k">${days>0?`近 ${days} 天`:"累计"}充值</div><div class="v">${money(win.recharge,cur)}</div>
+      <div class="s">${win.recharges.length} 次</div></div>
+    <div class="stat"><div class="k">日均消耗</div><div class="v">${dailyRate?money(dailyRate,cur):"—"}</div>
+      <div class="s">${runway?`按此速度可用约 ${runway.toFixed(1)} 天`:"样本不足"}</div></div>`;
+  drawLineChart(cv, win.series, cur, win.recharges, days);
+  if(!all.n) return;
+}
+function fitCanvas(cv, cssH){
+  const dpr = window.devicePixelRatio||1;
+  const w = cv.clientWidth || cv.parentElement.clientWidth || 800;
+  const h = cssH || cv.height || 240;
+  cv.width = Math.max(320, Math.floor(w*dpr));
+  cv.height = Math.floor(h*dpr);
+  cv.style.height = h+"px";
+  const ctx = cv.getContext("2d");
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,w,h);
+  return { ctx, w, h };
+}
+function clearCanvas(cv){ const {ctx,w,h}=fitCanvas(cv); ctx.fillStyle=cssVar("--fg3"); ctx.font="13px sans-serif";
+  ctx.textAlign="center"; ctx.fillText("暂无数据", w/2, h/2); }
+function cssVar(n){ return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
+function drawLineChart(cv, series, cur, recharges, days){
+  const H = 240;
+  if(!series || series.length<1){ clearCanvas(cv); return; }
+  const { ctx, w, h } = fitCanvas(cv, H);
+  const padL=64, padR=16, padT=16, padB=30;
+  const iw = w-padL-padR, ih = h-padT-padB;
+  let t0 = series[0].t, t1 = series[series.length-1].t;
+  if(t1-t0 < 3600e3){ t0 -= 1800e3; t1 += 1800e3; }
+  let vmin = Math.min(...series.map(p=>p.v)), vmax = Math.max(...series.map(p=>p.v));
+  if(vmax===vmin){ vmax=vmin+Math.max(1, Math.abs(vmin)*0.05); }
+  const padV=(vmax-vmin)*0.12; vmin-=padV; vmax+=padV;
+  const X = t => padL + (t-t0)/(t1-t0)*iw;
+  const Y = v => padT + (1-(v-vmin)/(vmax-vmin))*ih;
+
+  // 网格 + Y 轴
+  ctx.font="11px ui-monospace,Consolas,monospace"; ctx.textBaseline="middle";
+  for(let i=0;i<=4;i++){
+    const v = vmin + (vmax-vmin)*i/4, y = Y(v);
+    ctx.strokeStyle=cssVar("--line"); ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(padL, y+.5); ctx.lineTo(w-padR, y+.5); ctx.stroke();
+    ctx.fillStyle=cssVar("--fg3"); ctx.textAlign="right";
+    ctx.fillText(money(v,cur), padL-8, y);
+  }
+  // 面积 + 折线
+  ctx.beginPath(); ctx.moveTo(X(series[0].t), Y(series[0].v));
+  series.forEach(p=>ctx.lineTo(X(p.t), Y(p.v)));
+  const grad = ctx.createLinearGradient(0,padT,0,padT+ih);
+  grad.addColorStop(0,"rgba(77,141,255,.30)"); grad.addColorStop(1,"rgba(77,141,255,0)");
+  ctx.lineTo(X(series[series.length-1].t), padT+ih); ctx.lineTo(X(series[0].t), padT+ih); ctx.closePath();
+  ctx.fillStyle=grad; ctx.fill();
+  ctx.beginPath(); series.forEach((p,i)=> i?ctx.lineTo(X(p.t),Y(p.v)):ctx.moveTo(X(p.t),Y(p.v)));
+  ctx.strokeStyle=cssVar("--accent"); ctx.lineWidth=2; ctx.lineJoin="round"; ctx.stroke();
+  // 数据点
+  ctx.fillStyle=cssVar("--accent");
+  series.forEach(p=>{ ctx.beginPath(); ctx.arc(X(p.t),Y(p.v), series.length>60?1.6:2.6, 0, Math.PI*2); ctx.fill(); });
+  // 充值点（r.v 是充值后的余额，不是充值金额）
+  ctx.fillStyle=cssVar("--ok");
+  (recharges||[]).forEach(r=>{ ctx.beginPath(); ctx.arc(X(r.t),Y(r.v),4.5,0,Math.PI*2); ctx.fill(); });
+  // X 轴标签
+  ctx.fillStyle=cssVar("--fg3"); ctx.textAlign="center"; ctx.textBaseline="top";
+  const ticks=Math.min(6, series.length);
+  for(let i=0;i<ticks;i++){
+    const t = t0 + (t1-t0)*(ticks===1?0:i/(ticks-1));
+    const d=new Date(t);
+    ctx.fillText(`${d.getMonth()+1}/${d.getDate()}`, Math.min(w-padR-14, Math.max(padL+14, padL+(t-t0)/(t1-t0)*iw)), padT+ih+8);
+  }
+}
+function drawBarChart(cv, items, valueOf, color, fmt, height){
+  const H = height||220;
+  if(!items || !items.length){ clearCanvas(cv); return; }
+  const { ctx, w, h } = fitCanvas(cv, H);
+  const padL=64, padR=14, padT=14, padB=38;
+  const iw=w-padL-padR, ih=h-padT-padB;
+  const vals = items.map(valueOf);
+  const vmax = Math.max(...vals, 1);
+  ctx.font="11px ui-monospace,Consolas,monospace";
+  for(let i=0;i<=4;i++){
+    const y = padT + ih - ih*i/4;
+    ctx.strokeStyle=cssVar("--line"); ctx.beginPath(); ctx.moveTo(padL,y+.5); ctx.lineTo(w-padR,y+.5); ctx.stroke();
+    ctx.fillStyle=cssVar("--fg3"); ctx.textAlign="right"; ctx.textBaseline="middle";
+    ctx.fillText(fmt(vmax*i/4), padL-8, y);
+  }
+  const bw = Math.max(3, Math.min(46, iw/items.length*0.66));
+  items.forEach((it,i)=>{
+    const cx = padL + (i+0.5)*(iw/items.length);
+    const v = valueOf(it), bh = ih*(v/vmax);
+    const y = padT+ih-bh;
+    ctx.fillStyle=color;
+    const r=Math.min(3,bw/2);
+    ctx.beginPath();
+    if(ctx.roundRect) ctx.roundRect(cx-bw/2, y, bw, bh, [r,r,0,0]); else ctx.rect(cx-bw/2,y,bw,bh);
+    ctx.fill();
+    if(items.length<=16){
+      ctx.save(); ctx.translate(cx, padT+ih+6); ctx.rotate(-Math.PI/5);
+      ctx.fillStyle=cssVar("--fg3"); ctx.textAlign="right"; ctx.textBaseline="middle";
+      ctx.fillText(String(it.label).slice(5), 0, 0); ctx.restore();
+    }
+  });
+}
+
+/* ---------------- 官方用量 ---------------- */
+/** 调用 DeepSeek 平台内部用量接口（必须经本地中转：它没有 CORS 头） */
+async function platformGet(path, month, year, token){
+  const h = newCtl(25000);
+  try{
+    const r = await fetch(relayProxy(`${PLATFORM_BASE}/${path}?month=${month}&year=${year}`),
+      { headers:{ "Authorization":"Bearer "+token, "Accept":"*/*", "x-app-version":"1.0.0" },
+        credentials:"omit", cache:"no-store", signal:h.c.signal });
+    const txt = await r.text();
+    let j=null; try{ j=JSON.parse(txt); }catch(e){}
+    return { http:r.status, json:j, text:txt };
+  }catch(e){ return { http:0, error:String(e&&e.message||e) }; }
+  finally{ h.done(); }
+}
+async function fetchOfficialUsage(){
+  const token = extractToken($("#usage-token").value);
+  const month = Number($("#usage-month").value.split("-")[1]);
+  const year  = Number($("#usage-month").value.split("-")[0]);
+  if(!token){ notify("warn","请先填入 DeepSeek 平台登录 Token。","usage-out"); return; }
+  if(!RELAY_OK){ await detectRelay(true); }
+  if(!RELAY_OK){
+    notify("bad","官方用量接口 <b>没有 CORS 响应头</b>，浏览器无法直接调用，必须先启动本地中转：<br>"+
+      "双击 <code>启动面板.cmd</code>，或命令行运行 <code>python run_panel.py</code>，然后回来点「重新检测中转」。","usage-out"); return;
+  }
+  notify("info",`正在拉取 ${year} 年 ${month} 月的官方用量…`,"usage-out");
+  const [amount, cost] = await Promise.all([
+    platformGet("amount", month, year, token),
+    platformGet("cost",  month, year, token)
+  ]);
+  if(amount.error || cost.error){
+    notify("bad","请求官方接口失败："+esc(amount.error||cost.error),"usage-out"); return;
+  }
+  const aCode = amount.json && amount.json.code;
+  if(aCode !== 0){
+    const msg = (amount.json && amount.json.msg) || amount.text || "未知响应";
+    notify("bad", `平台返回异常：<code>${esc(msg)}</code>（code=${esc(String(aCode))}）<br>`+
+      (/Authorization|token/i.test(String(msg))
+        ? "看起来 Token 无效或已过期 —— 回 <b>platform.deepseek.com</b> 重新登录后按上面的脚本再取一次。"
+        : "可能是月份参数超出可查范围，或平台接口有变动。"),"usage-out");
+    return;
+  }
+  const parsed = parseUsage(amount.json, cost.json);
+  S.usage = parsed; S.usageMeta = { month, year, ts:Date.now() };
+  save(); renderUsage();
+  toast("官方用量已更新");
+}
+function extractToken(raw){
+  let s = String(raw||"").trim();
+  if(!s) return "";
+  s = s.replace(/^["']|["']$/g,"");
+  if(s.startsWith("{")){
+    try{ const o=JSON.parse(s); s = o.token||o.value||o.access_token||o.userToken||s; }catch(e){}
+  }
+  const m = /"?(?:token|value|access_token|userToken)"?\s*[:=]\s*"([^"]{16,})"/i.exec(s);
+  if(m) s = m[1];
+  s = s.trim().replace(/^["']|["']$/g,"").replace(/^Bearer\s+/i,"");
+  return s;
+}
+function parseUsage(amountJson, costJson){
+  const bizA = (((amountJson||{}).data||{}).biz_data) || {};
+  const rawC = (((costJson||{}).data||{}).biz_data);
+  const bizC = Array.isArray(rawC) ? (rawC[0]||{}) : (rawC||{});
+  const costByDate = {};
+  (bizC.days||[]).forEach(d=>{ costByDate[d.date] = sumCost(d.data); });
+  const costByModel = {};
+  (bizC.total||[]).forEach(m=>{ costByModel[m.model] = sumCost([m]); });
+
+  const days = (bizA.days||[]).map(d=>{
+    const agg = { date:d.date, requests:0, tokens:0, hit:0, miss:0, resp:0, prompt:0, cost: costByDate[d.date]||0 };
+    (d.data||[]).forEach(mu=>{
+      const b = breakdown(mu.usage);
+      agg.requests+=b.requests; agg.tokens+=b.tokens; agg.hit+=b.hit; agg.miss+=b.miss;
+      agg.resp+=b.resp; agg.prompt+=b.prompt;
+    });
+    return agg;
+  }).sort((a,b)=> a.date < b.date ? -1 : 1);
+
+  const models = (bizA.total||[]).map(mu=>{
+    const b = breakdown(mu.usage);
+    return { model:mu.model, label:MODEL_LABEL[mu.model]||mu.model, ...b, cost: costByModel[mu.model]||0 };
+  });
+
+  // 合计以 biz_data.total 为准（它才是权威月度汇总）。
+  // 若 total 缺失才回退到按天累加 —— 否则当 days 不全时，汇总会和「按模型拆解」对不上。
+  const ZERO = { requests:0, tokens:0, hit:0, miss:0, resp:0, prompt:0, cost:0 };
+  const addInto = (a,x)=>Object.keys(ZERO).reduce((o,k)=>(o[k]=a[k]+(x[k]||0), o), Object.assign({},ZERO));
+  let total = models.reduce(addInto, ZERO);
+  if(!models.length && days.length) total = days.reduce(addInto, ZERO);
+  return { days, models, total };
+}
+function breakdown(usage){
+  const out = { requests:0, tokens:0, hit:0, miss:0, resp:0, prompt:0 };
+  (usage||[]).forEach(e=>{
+    const v = Number(e.amount)||0;
+    switch(e.type){
+      case "REQUEST": out.requests = v; break;
+      case "PROMPT_CACHE_HIT_TOKEN": out.hit = v; out.tokens += v; break;
+      case "PROMPT_CACHE_MISS_TOKEN": out.miss = v; out.tokens += v; break;
+      case "RESPONSE_TOKEN": out.resp = v; out.tokens += v; break;
+      case "PROMPT_TOKEN": out.prompt = v; out.tokens += v; break;
+      default: out.tokens += v;
+    }
+  });
+  return out;
+}
+function sumCost(list){
+  let s=0;
+  (list||[]).forEach(mu=>(mu.usage||[]).forEach(e=>{ if(e.type!=="REQUEST") s += Number(e.amount)||0; }));
+  return s;
+}
+function renderUsage(){
+  const box = $("#usage-out");
+  $("#usage-gate").innerHTML = RELAY_OK
+    ? `<div class="notice ok" style="margin-bottom:12px"><span class="ico">✅</span><div>本地中转在线：<code>${esc(relayBase())}</code>，官方用量接口可用。</div></div>`
+    : `<div class="notice warn" style="margin-bottom:12px"><span class="ico">⚠️</span><div>
+        本地中转<b>未连接</b>，官方用量接口用不了（它没有 CORS 头，浏览器直连必被拦）。
+        双击 <code>启动面板.cmd</code> 启动中转后点这里 <button class="btn sm" id="gate-redetect">重新检测</button>。
+      </div></div>`;
+  const gr = $("#gate-redetect");
+  if(gr) gr.onclick = async()=>{ await detectRelay(); renderUsage(); renderBadges(); };
+
+  if(!S.usage){ box.innerHTML = `<div class="empty">还没有拉取过官方用量。填入 Token、选好月份，点「拉取官方用量」。</div>`; return; }
+  const u = S.usage, meta = S.usageMeta||{};
+  const hitRate = (u.total.hit+u.total.miss) ? (u.total.hit/(u.total.hit+u.total.miss)*100) : 0;
+  box.innerHTML = `
+    <div class="muted" style="font-size:12px;margin:4px 0 10px">数据时间：${esc(meta.year+"-"+String(meta.month).padStart(2,"0"))} · 拉取于 ${fmtTime(meta.ts)}</div>
+    <div class="grid g4" style="margin-bottom:14px">
+      <div class="stat"><div class="k">总费用</div><div class="v">¥${(u.total.cost||0).toFixed(2)}</div><div class="s">当月累计</div></div>
+      <div class="stat"><div class="k">总 TOKEN</div><div class="v">${num(u.total.tokens)}</div><div class="s">输入+输出</div></div>
+      <div class="stat"><div class="k">请求数</div><div class="v">${num(u.total.requests)}</div><div class="s">API 调用次数</div></div>
+      <div class="stat ok"><div class="k">缓存命中率</div><div class="v">${hitRate.toFixed(1)}%</div>
+        <div class="s">命中 ${num(u.total.hit)} / 未命中 ${num(u.total.miss)}</div></div>
+    </div>
+    <h4 style="margin:16px 0 8px;font-size:13.5px">按天分布（TOKEN）</h4>
+    <canvas id="chart-usage-day" height="220"></canvas>
+    <h4 style="margin:18px 0 8px;font-size:13.5px">按天明细</h4>
+    <div class="tw" style="max-height:360px"><table>
+      <thead><tr><th>日期</th><th class="num">请求数</th><th class="num">总 TOKEN</th>
+        <th class="num">缓存命中</th><th class="num">缓存未命中</th><th class="num">输出</th><th class="num">费用</th></tr></thead>
+      <tbody>${u.days.map(d=>`<tr>
+        <td class="mono">${esc(d.date)}</td><td class="num">${num(d.requests)}</td><td class="num">${num(d.tokens)}</td>
+        <td class="num muted">${num(d.hit)}</td><td class="num muted">${num(d.miss)}</td><td class="num muted">${num(d.resp)}</td>
+        <td class="num">¥${(d.cost||0).toFixed(2)}</td></tr>`).join("") ||
+        `<tr><td colspan="7" class="empty">该月没有数据</td></tr>`}</tbody>
+      <tfoot><tr style="font-weight:640">
+        <td>合计</td><td class="num">${num(u.total.requests)}</td><td class="num">${num(u.total.tokens)}</td>
+        <td class="num">${num(u.total.hit)}</td><td class="num">${num(u.total.miss)}</td>
+        <td class="num">${num(u.total.resp)}</td><td class="num">¥${(u.total.cost||0).toFixed(2)}</td></tr></tfoot>
+    </table></div>
+    <h4 style="margin:18px 0 8px;font-size:13.5px">按模型拆解</h4>
+    <div class="tw"><table>
+      <thead><tr><th>模型</th><th class="num">请求数</th><th class="num">总 TOKEN</th>
+        <th class="num">缓存命中</th><th class="num">缓存未命中</th><th class="num">输出</th><th class="num">费用</th></tr></thead>
+      <tbody>${u.models.map(m=>`<tr>
+        <td>${esc(m.label)} <span class="tag">${esc(m.model)}</span></td>
+        <td class="num">${num(m.requests)}</td><td class="num">${num(m.tokens)}</td>
+        <td class="num muted">${num(m.hit)}</td><td class="num muted">${num(m.miss)}</td>
+        <td class="num muted">${num(m.resp)}</td><td class="num">¥${(m.cost||0).toFixed(2)}</td></tr>`).join("") ||
+        `<tr><td colspan="7" class="empty">没有模型数据</td></tr>`}</tbody>
+    </table></div>`;
+  drawBarChart($("#chart-usage-day"), u.days, d=>d.tokens, cssVar("--accent"),
+    v=> v>=1e6 ? (v/1e6).toFixed(1)+"M" : v>=1e3 ? (v/1e3).toFixed(0)+"K" : String(Math.round(v)), 220);
+}
+
+/* ---------------- 多月对比 ---------------- */
+async function compareMonths(n){
+  const token = extractToken($("#usage-token").value);
+  if(!token){ notify("warn","请先填入 DeepSeek 平台登录 Token。","usage-out"); return; }
+  if(!RELAY_OK) await detectRelay(true);
+  if(!RELAY_OK){ notify("bad","对比需要本地中转，请先启动它。","usage-out"); return; }
+  const base = $("#usage-month").value || "";
+  if(!/^\d{4}-\d{2}$/.test(base)){ toast("月份格式异常"); return; }
+  const [by, bm] = base.split("-").map(Number);
+  const months = [];
+  for(let i=0;i<n;i++){ const d = new Date(by, bm-1-i, 1); months.push([d.getFullYear(), d.getMonth()+1]); }
+
+  notify("info",`正在拉取最近 ${n} 个月的官方用量…（共 ${n*2} 个请求）`,"usage-out");
+  const rows = [];
+  for(const [yy,mm] of months){
+    const [a,c] = await Promise.all([ platformGet("amount",mm,yy,token), platformGet("cost",mm,yy,token) ]);
+    const code = a.json && a.json.code;
+    if(code !== 0){
+      const msg = (a.json && a.json.msg) || a.error || "请求失败";
+      rows.push({ y:yy, m:mm, err:msg });
+      if(/token|authorization/i.test(String(msg))) break;   // token 失效，再拉也是白拉
+      continue;
+    }
+    const p = parseUsage(a.json, c.json || {});
+    rows.push({ y:yy, m:mm, tokens:p.total.tokens, requests:p.total.requests,
+                cost:p.total.cost, hit:p.total.hit, miss:p.total.miss });
+  }
+  S.compare = rows; save(); renderCompare();
+  const bad = rows.filter(r=>r.err).length;
+  toast(bad ? `对比完成，${bad} 个月拉取失败` : "对比完成");
+}
+function renderCompare(){
+  const box = $("#usage-compare"); if(!box) return;
+  const rows = S.compare;
+  if(!rows || !rows.length){ box.innerHTML=""; return; }
+  const maxCost = Math.max(...rows.filter(r=>!r.err).map(r=>r.cost||0), 0.0001);
+  box.innerHTML = `
+    <h4 style="margin:4px 0 8px;font-size:13.5px">最近几个月对比</h4>
+    <div class="tw" style="max-height:none;margin-bottom:16px"><table>
+      <thead><tr><th>月份</th><th class="num">请求数</th><th class="num">总 TOKEN</th>
+        <th class="num">缓存命中</th><th class="num">费用</th><th style="width:30%">费用占比</th></tr></thead>
+      <tbody>${rows.map(r=>{
+        const label = `${r.y}-${String(r.m).padStart(2,"0")}`;
+        if(r.err) return `<tr><td class="mono">${label}</td>
+          <td colspan="5" class="muted" style="font-size:12px">${esc(r.err)}</td></tr>`;
+        const pct = (r.cost||0)/maxCost*100;
+        return `<tr><td class="mono">${label}</td>
+          <td class="num">${num(r.requests)}</td><td class="num">${num(r.tokens)}</td>
+          <td class="num muted">${num(r.hit)}</td><td class="num">¥${(r.cost||0).toFixed(2)}</td>
+          <td><div style="background:var(--bg3);border-radius:4px;overflow:hidden;height:14px">
+            <div style="width:${pct.toFixed(1)}%;height:100%;background:var(--accent)"></div></div></td></tr>`;
+      }).join("")}</tbody>
+    </table></div>`;
+}
+function exportUsageCSV(){
+  if(!S.usage || !S.usage.days.length){ toast("还没有官方用量数据"); return; }
+  const q = v => `"${String(v??"").replace(/"/g,'""')}"`;
+  const rows = [["日期","请求数","总Token","缓存命中","缓存未命中","输出Token","输入Token","费用"]]
+    .concat(S.usage.days.map(d=>[d.date,d.requests,d.tokens,d.hit,d.miss,d.resp,d.prompt,(d.cost||0).toFixed(4)]));
+  rows.push(["合计",S.usage.total.requests,S.usage.total.tokens,S.usage.total.hit,
+             S.usage.total.miss,S.usage.total.resp,S.usage.total.prompt,(S.usage.total.cost||0).toFixed(4)]);
+  rows.push([]);
+  rows.push(["按模型"]);
+  rows.push(["模型","请求数","总Token","缓存命中","缓存未命中","输出Token","输入Token","费用"]);
+  S.usage.models.forEach(m=>rows.push([`${m.label} (${m.model})`,
+    m.requests,m.tokens,m.hit,m.miss,m.resp,m.prompt,(m.cost||0).toFixed(4)]));
+  const csv = "\uFEFF" + rows.map(r=>r.map(q).join(",")).join("\r\n");
+  const meta = S.usageMeta || {};
+  download(`dskp-usage-${meta.year||"x"}-${String(meta.month||0).padStart(2,"0")}.csv`,
+           csv, "text/csv;charset=utf-8");
+  toast("用量 CSV 已导出");
+}
+
+/* ---------------- 导入 / 解析 ---------------- */
+function addParsed(items){
+  const existing = new Set(S.keys.map(k=>k.key));
+  let added=0, dup=0;
+  items.forEach(it=>{
+    if(!it.key) return;
+    if(existing.has(it.key)){ dup++; return; }
+    existing.add(it.key);
+    S.keys.push({ id:uid(), name: it.name || ("Key-"+(S.keys.length+1)), key:it.key, enabled:true, note:"" });
+    added++;
+  });
+  save(); renderAll(); updateToolbar();
+  $("#import-info").textContent = `新增 ${added} 个${dup?`，跳过重复 ${dup} 个`:""}`;
+  toast(`导入完成：新增 ${added} 个${dup?`，重复 ${dup} 个`:""}`);
+}
+function parseText(text){
+  const out=[];
+  const KEYRE = /(sk-[A-Za-z0-9_\-]{10,}|[A-Za-z0-9_\-]{32,})/;
+  String(text||"").split(/\r?\n/).forEach((raw,i)=>{
+    const line = raw.trim();
+    if(!line || line.startsWith("#")) return;
+    let parts = line.split(/[,\t;|]+/).map(s=>s.trim().replace(/^["']|["']$/g,"")).filter(Boolean);
+    let key = parts.find(p=>/^sk-[A-Za-z0-9_\-]{10,}$/.test(p))
+           || parts.find(p=>/^[A-Za-z0-9_\-]{32,}$/.test(p));
+    if(!key){ const m = KEYRE.exec(line); if(m) key = m[1]; }
+    if(!key) return;
+    key = key.replace(/^Bearer\s+/i,"").trim();
+    const name = parts.filter(p=>p!==key).join(" ").slice(0,60) || ("Key-"+(out.length+1));
+    out.push({ name, key });
+  });
+  return out;
+}
+function parseJSON(text){
+  let j; try{ j = JSON.parse(text); }catch(e){ return null; }
+  const out=[];
+  const push = (name,key)=>{ if(key && typeof key==="string") out.push({name:name||"", key:key.trim()}); };
+  const walk = (node)=>{
+    if(Array.isArray(node)) return node.forEach(walk);
+    if(node && typeof node==="object"){
+      const k = node.key||node.apiKey||node.api_key||node.token||node.sk||node.value;
+      if(typeof k==="string" && k.trim()) push(node.name||node.label||node.note, k);
+      else Object.values(node).forEach(v=>{ if(v && typeof v==="object") walk(v); });
+      return;
+    }
+    if(typeof node==="string") push("", node);
+  };
+  walk(j);
+  return out.filter(x=>/^sk-/.test(x.key)||/^[A-Za-z0-9_\-]{20,}$/.test(x.key));
+}
+function handleFiles(files){
+  Array.from(files).forEach(f=>{
+    const rd = new FileReader();
+    rd.onload = ()=>{
+      const text = String(rd.result||"");
+      let items = null;
+      if(/\.json$/i.test(f.name)) items = parseJSON(text);
+      if(!items || !items.length) items = parseText(text);
+      if(!items.length){ toast(`「${f.name}」里没解析出 Key`); return; }
+      addParsed(items);
+    };
+    rd.readAsText(f, "utf-8");
+  });
+}
+
+/* ---------------- 导出 ---------------- */
+function download(name, text, type){
+  const blob = new Blob([text], {type:type||"text/plain;charset=utf-8"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click();
+  setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 800);
+}
+function exportRows(){
+  const full = S.settings.exportFull;
+  const th = Number(S.settings.warnThreshold)||0;
+  return S.keys.map(k=>{
+    const r = S.results[k.id]||{};
+    const live = r.live || null;
+    const bal = (r.infos||[]).map(b=>`${b.currency} ${b.total}`).join(" / ");
+    const st = (STATUS[r.status||"unchecked"]||{}).t || "";
+    return { 名称:k.name, 标签:(k.tags||[]).join(" "), Key: full?k.key:maskKey(k.key),
+      状态:st, 余额:bal,
+      赠送:(r.infos||[]).map(b=>b.granted).join("/"), 充值:(r.infos||[]).map(b=>b.topped).join("/"),
+      预警: warnHits(r).length ? "是" : (th>0 ? "否" : ""),
+      实测: live ? (live.ok ? "通过" : "不通过") : "",
+      实测耗时ms: (live && live.ms!=null) ? live.ms : "",
+      可用模型数: (live && live.models) ? live.models.length : "",
+      实测错误: (live && live.error) ? live.error : "",
+      更新时间: r.ts?new Date(r.ts).toLocaleString("zh-CN"):"", 备注:k.note||"",
+      错误: r.error||"", request_id: r.requestId||"" };
+  });
+}
+function exportCSV(){
+  const rows = exportRows();
+  if(!rows.length){ toast("没有可导出的数据"); return; }
+  const cols = Object.keys(rows[0]);
+  const q = v => `"${String(v??"").replace(/"/g,'""')}"`;
+  const csv = "\uFEFF" + [cols.map(q).join(",")].concat(rows.map(r=>cols.map(c=>q(r[c])).join(","))).join("\r\n");
+  download(`deepseek-keys-${fmtDay(Date.now())}.csv`, csv, "text/csv;charset=utf-8");
+  toast("CSV 已导出" + (S.settings.exportFull?"（含完整 Key，注意保管）":"（Key 已打码）"));
+}
+function exportJSON(){
+  const data = { exportedAt:new Date().toISOString(), keys:S.keys.map(k=>{
+      const r = S.results[k.id]||{};
+      return { name:k.name, tags:k.tags||[], key:S.settings.exportFull?k.key:maskKey(k.key),
+        status:r.status||"unchecked", isAvailable:r.isAvailable, balances:r.infos||[],
+        live:r.live||null, warn: warnHits(r).length>0,
+        error:r.error||null, requestId:r.requestId||null,
+        checkedAt:r.ts?new Date(r.ts).toISOString():null, note:k.note||"" };
+    }), spend:{}, history: S.settings.exportFull ? S.history : undefined,
+    officialUsage: S.usage||null, officialUsageMeta: S.usageMeta||null };
+  download(`deepseek-keys-${fmtDay(Date.now())}.json`, JSON.stringify(data,null,2), "application/json");
+  toast("JSON 已导出");
+}
+
+/* ---------------- 自检 ---------------- */
+async function diagnose(){
+  const out = $("#diag-out");
+  const rows = [];
+  const line = (name, state, detail) => {
+    const cls = state==="ok"?"ok":state==="bad"?"bad":"warn";
+    const ico = state==="ok"?"✅":state==="bad"?"⛔":"⚠️";
+    rows.push(`<div class="notice ${cls}" style="margin-bottom:8px"><span class="ico">${ico}</span>
+      <div style="flex:1"><b>${name}</b><div style="font-size:12.5px;color:var(--fg2);margin-top:2px">${detail}</div></div></div>`);
+    out.innerHTML = rows.join("");
+  };
+  out.innerHTML = `<div class="empty">正在自检…</div>`;
+
+  // 1. 直连余额接口（用假 Key，期望拿到 401 JSON —— 说明可达且跨域放行）
+  try{
+    const ctl = new AbortController(); const t=setTimeout(()=>ctl.abort(), 12000);
+    const r = await fetch(BALANCE_URL, { headers:{Authorization:"Bearer sk-00000000000000000000000000000000", Accept:"application/json"},
+      credentials:"omit", cache:"no-store", signal:ctl.signal });
+    clearTimeout(t);
+    await r.text();
+    line("浏览器直连 api.deepseek.com", r.status===401?"ok":"warn",
+      r.status===401 ? "成功穿过跨域限制，拿到 401（假 Key 被正确拒绝）——余额查询可以走直连。"
+                     : `返回了 HTTP ${r.status}，接口行为可能有变化。`);
+  }catch(e){
+    line("浏览器直连 api.deepseek.com","bad",
+      `被浏览器拦截或网络不通：<code>${esc(String(e&&e.message||e))}</code>。`+
+      `余额查询请改用本地中转模式。`);
+  }
+  // 2. 中转
+  const ok = await detectRelay(true); renderBadges();
+  line("本地中转服务", ok?"ok":"warn", ok
+    ? `已连接 <code>${esc(relayBase())}</code>，<code>/health</code> 正常。`
+    : `未发现运行中的中转（已尝试 ${relayBase()} 与 8787–8798 端口）。想查官方用量就必须启动它。`);
+  // 3. 经中转访问官方用量接口（假 token，期望 code=40003）
+  if(ok){
+    try{
+      const ctl = new AbortController(); const t=setTimeout(()=>ctl.abort(), 15000);
+      const r = await fetch(relayProxy(`${PLATFORM_BASE}/amount?month=1&year=2024`),
+        { headers:{Authorization:"Bearer dummy-token-000000000000", Accept:"*/*", "x-app-version":"1.0.0"},
+          credentials:"omit", cache:"no-store", signal:ctl.signal });
+      clearTimeout(t);
+      const j = await r.json().catch(()=>null);
+      const code = j && j.code;
+      line("经中转访问 platform.deepseek.com", code===40003?"ok":"warn",
+        code===40003 ? "链路正常，平台正确返回「Authorization Failed (invalid token)」（假 token 被拒）。"
+                     : `返回 <code>${esc(JSON.stringify(j).slice(0,180))}</code>`);
+    }catch(e){
+      line("经中转访问 platform.deepseek.com","bad", esc(String(e&&e.message||e)));
+    }
+  }
+  // 4. 本地存储
+  try{
+    localStorage.setItem("dskp.probe","1"); localStorage.removeItem("dskp.probe");
+    line("浏览器本地存储", "ok", S.settings.rememberKeys ? "可写，当前已启用 Key 保存。" : "可写；当前未启用 Key 保存（刷新会丢 Key）。");
+  }catch(e){ line("浏览器本地存储","warn","不可写（隐私模式？），Key 与快照无法保存。"); }
+  toast("自检完成");
+}
+
+/* ---------------- 初始化 ---------------- */
+function renderAll(){
+  renderBadges(); renderLockBadge(); renderTagFilter(); renderStats(); renderTable();
+  renderChartKeyOptions(); renderSpend(); renderUsage(); renderCompare();
+  renderEncState(); renderFileState(); updateStoreInfo();
+}
+/** 立即锁定：清空内存中的明文 */
+function doLock(){
+  lockNow(false); renderEncState(); updateStoreInfo();
+  notify("warn", T("enc.lockedMsg"));
+  toast(T("enc.lockedMsg"));
+}
+const TABS = ["keys", "usage", "settings"];
+function switchTab(name, fromHash){
+  if(TABS.indexOf(name) < 0) name = "keys";
+  $$(".tabs button").forEach(b=>b.classList.toggle("active", b.dataset.tab===name));
+  $$("section.tab").forEach(s=>s.classList.toggle("active", s.id==="tab-"+name));
+  // 同步到地址栏锚点，方便直接把某个页面分享出去（#usage / #settings）
+  if(!fromHash && location.hash !== "#"+name){
+    try{ history.replaceState(null, "", "#"+name); }catch(e){}
+  }
+  if(name==="usage"){ renderChartKeyOptions(); renderSpend(); renderUsage(); renderCompare();
+    if(S.usage) drawBarChart($("#chart-usage-day"), S.usage.days, d=>d.tokens, cssVar("--accent"),
+      v=> v>=1e6?(v/1e6).toFixed(1)+"M":v>=1e3?(v/1e3).toFixed(0)+"K":String(Math.round(v)), 220); }
+}
+function applySettingsToUI(){
+  const s = S.settings;
+  $("#set-mode").value = s.mode; $("#set-relay").value = s.relay;
+  $("#set-conc").value = s.concurrency; $("#set-timeout").value = s.timeout;
+  $("#set-retries").value = s.retries; $("#set-auto").value = String(s.autoRefresh);
+  $("#set-remember").checked = s.rememberKeys; $("#set-reveal").checked = s.reveal;
+  $("#set-export-full").checked = s.exportFull;
+  $("#set-warn").value = Number(s.warnThreshold)||0;
+  $("#set-notify").checked = !!s.notifyOnWarn;
+  $("#set-probe-deep").checked = !!s.probeDeep;
+  $("#set-probe-model").value = s.probeModel || "deepseek-chat";
+  $("#usage-remember").checked = s.saveToken !== false;
+  $("#usage-token").value = UTOKEN || "";
+  document.documentElement.setAttribute("data-theme", localStorage.getItem("dskp.theme")||"dark");
+}
+function bindSettings(){
+  const bind = (sel, key, cast) => {
+    const el = $(sel);
+    el.addEventListener("change", ()=>{
+      const raw = el.type==="checkbox" ? el.checked : el.value;
+      S.settings[key] = cast ? cast(raw) : raw;
+      if(key==="rememberKeys" && S.settings.rememberKeys===false){
+        try{ localStorage.removeItem(LS_KEYS); }catch(e){}
+      }
+      save(); renderTable(); renderStats(); renderBadges(); renderUsage();
+      if(key==="autoRefresh") setupAutoRefresh();
+      renderSpend();
+    });
+  };
+  bind("#set-mode","mode"); bind("#set-relay","relay"); bind("#set-conc","concurrency",Number);
+  bind("#set-timeout","timeout",Number); bind("#set-retries","retries",Number);
+  bind("#set-auto","autoRefresh",Number); bind("#set-remember","rememberKeys");
+  bind("#set-reveal","reveal"); bind("#set-export-full","exportFull");
+  bind("#set-warn","warnThreshold",Number); bind("#set-probe-model","probeModel");
+  bind("#set-notify","notifyOnWarn"); bind("#set-probe-deep","probeDeep");
+  $("#set-notify").addEventListener("change", async ()=>{
+    if(S.settings.notifyOnWarn){
+      const granted = await ensureNotifyPermission();
+      if(!granted){
+        S.settings.notifyOnWarn = false; $("#set-notify").checked = false; save();
+        toast("浏览器没有授予通知权限，已自动关闭");
+      }
+    }
+  });
+  $("#btn-notify-test").onclick = async ()=>{
+    const ok = await ensureNotifyPermission();
+    if(!ok){ toast("浏览器没有授予通知权限"); return; }
+    try{ new Notification("🔔 测试通知", { body:"能看到这条，说明余额预警通知可以正常工作。" }); toast("已发送"); }
+    catch(e){ toast("发送失败："+e.message); }
+  };
+  $("#btn-backup").onclick = exportBackup;
+  $("#btn-restore").onclick = ()=> $("#restore-input").click();
+  $("#restore-input").onchange = e=>{
+    if(e.target.files && e.target.files[0]) importBackup(e.target.files[0]);
+    e.target.value = "";
+  };
+  $("#btn-export-keys2").onclick = exportKeyList;
+  $("#btn-usage-compare").onclick = ()=> compareMonths(3);
+  $("#btn-usage-csv").onclick = exportUsageCSV;
+
+  /* ---- 加密 ---- */
+  $("#btn-enc-set").onclick    = ()=> passwordModal("set");
+  $("#btn-enc-change").onclick = ()=> passwordModal("change");
+  $("#btn-enc-lock").onclick   = ()=> doLock();
+  const hl = $("#btn-lock"); if(hl) hl.onclick = ()=> doLock();
+  $("#btn-enc-off").onclick = ()=>{
+    if(!confirm(T("enc.disableConfirm"))) return;
+    disableEncryption(); renderEncState(); updateStoreInfo(); toast(T("enc.disabled"));
+  };
+  const fsw = $("#btn-fs-wipe"); if(fsw) fsw.onclick = fileStoreWipe;
+  /* ---- 语言：分段开关，选中的那个是当前语言 ---- */
+  $$("#lang-seg button").forEach(el=>{
+    el.onclick = ()=>{ if(el.dataset.setlang !== LANG) setLang(el.dataset.setlang); };
+  });
+  $("#btn-redetect").onclick = async()=>{ toast("检测中…");
+    const ok = await detectRelay(true); renderBadges(); renderUsage();
+    toast(ok? "中转在线："+relayBase() : "没找到中转服务"); };
+  $("#btn-diagnose").onclick = diagnose;
+  $("#btn-usage-clear").onclick = ()=>{ S.usage=null; S.usageMeta=null; save(); renderUsage(); toast("已清除用量结果"); };
+  $("#btn-wipe").onclick = ()=>{
+    if(!confirm("确定清除全部本机数据？（Key、快照、设置、平台 Token 全部删除，不可恢复）")) return;
+    ["dskp.v1","dskp.v1.keys","dskp.v1.utoken","dskp.theme"].forEach(k=>{ try{localStorage.removeItem(k);}catch(e){} });
+    S = { keys:[], results:{}, history:{}, settings:defaultSettings(), usage:null, usageMeta:null };
+    UTOKEN=""; SELECTED.clear(); applySettingsToUI(); renderAll(); renderUsage(); toast("已清除");
+  };
+  const ut = $("#usage-token");
+  ut.addEventListener("change", ()=>{
+    UTOKEN = extractToken(ut.value);
+    if(UTOKEN && UTOKEN!==ut.value.trim()){ ut.value = UTOKEN; toast("已自动提取出 Token"); }
+    save();
+  });
+  $("#usage-remember").checked = S.settings.saveToken !== false;
+  $("#usage-remember").addEventListener("change", e=>{
+    S.settings.saveToken = !!e.target.checked;
+    save(); updateStoreInfo();
+    toast(S.settings.saveToken ? T("token.rememberOn") : T("token.rememberOff"));
+  });
+  $("#btn-usage-fetch").onclick = fetchOfficialUsage;
+}
+function setupAutoRefresh(){
+  if(TIMER){ clearInterval(TIMER); TIMER=null; }
+  const s = Number(S.settings.autoRefresh)||0;
+  if(s>0) TIMER = setInterval(()=>{ if(!RUNNING && S.keys.length) runQuery(S.keys.slice()); }, s*1000);
+}
+function bindUI(){
+  // 标签
+  $$(".tabs button").forEach(b=> b.onclick = ()=> switchTab(b.dataset.tab));
+  // 主题
+  $("#btn-theme").onclick = ()=>{
+    const cur = document.documentElement.getAttribute("data-theme");
+    const next = cur==="dark" ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", next);
+    try{ localStorage.setItem("dskp.theme", next); }catch(e){}
+    renderSpend();
+    if(S.usage) drawBarChart($("#chart-usage-day"), S.usage.days, d=>d.tokens, cssVar("--accent"),
+      v=> v>=1e6?(v/1e6).toFixed(1)+"M":v>=1e3?(v/1e3).toFixed(0)+"K":String(Math.round(v)), 220);
+  };
+  // 导入
+  $("#btn-import-text").onclick = ()=>{
+    const items = parseText($("#import-text").value);
+    if(!items.length){ toast("没解析出 Key，检查一下内容"); return; }
+    addParsed(items); $("#import-text").value=""; $("#import-acc").open=false;
+  };
+  $("#btn-import-file").onclick = ()=> $("#file-input").click();
+  $("#file-input").onchange = e=>{ handleFiles(e.target.files); e.target.value=""; };
+  $("#btn-import-demo").onclick = ()=>{
+    $("#import-text").value =
+      "sk-00000000000000000000000000000001\n" +
+      "主力号,sk-00000000000000000000000000000002\n" +
+      "sk-00000000000000000000000000000003,备用（9月充值）";
+  };
+  // 拖拽
+  ["dragenter","dragover"].forEach(ev=> document.addEventListener(ev, e=>{ e.preventDefault(); }));
+  document.addEventListener("drop", e=>{
+    e.preventDefault();
+    if(e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length) handleFiles(e.dataTransfer.files);
+  });
+  // 工具栏
+  $("#btn-query-all").onclick = ()=> runQuery(S.keys.slice());
+  $("#btn-query-sel").onclick = ()=> runQuery(S.keys.filter(k=>SELECTED.has(k.id)));
+  $("#btn-probe-all").onclick = ()=> runProbe(S.keys.slice());
+  $("#btn-probe-sel").onclick = ()=> runProbe(S.keys.filter(k=>SELECTED.has(k.id)));
+  $("#btn-stop").onclick = ()=>{ RUNNING=false; abortAll("user"); toast("已请求停止"); updateToolbar(); };
+  $("#filter-text").oninput = renderTable;
+  $("#filter-status").onchange = renderTable;
+  $("#filter-tag").onchange = renderTable;
+  $("#check-all").onchange = e=>{
+    const list = visibleKeys();
+    if(e.target.checked) list.forEach(k=>SELECTED.add(k.id)); else list.forEach(k=>SELECTED.delete(k.id));
+    renderTable(); renderStats();
+  };
+  $("#btn-sel-ok").onclick      = ()=> selectByStatus(["ok"]);
+  $("#btn-sel-invalid").onclick = ()=> selectByStatus(["invalid"]);
+  $("#btn-sel-low").onclick     = ()=>{ SELECTED.clear();
+    S.keys.forEach(k=>{ if(warnHits(S.results[k.id]||{}).length) SELECTED.add(k.id); });
+    renderTable(); renderStats(); toast(`已选中 ${SELECTED.size} 个预警 Key`); };
+  $("#btn-sel-none").onclick    = ()=>{ SELECTED.clear(); renderTable(); renderStats(); };
+  $("#btn-export-csv").onclick  = exportCSV;
+  $("#btn-export-json").onclick = exportJSON;
+  $("#btn-export-keys").onclick = exportKeyList;
+  $("#btn-clean-invalid").onclick = cleanInvalid;
+  $("#btn-clear-keys").onclick = ()=>{
+    if(!confirm("确定清空 Key 列表？（历史快照会保留）")) return;
+    S.keys=[]; SELECTED.clear(); save(); renderAll(); updateToolbar(); toast("列表已清空");
+  };
+  // 弹窗
+  $("#modal-cancel").onclick = closeModal;
+  $("#modal-ok").onclick = ()=>{
+    if(typeof MODAL_OK === "function"){ if(MODAL_OK() !== false) closeModal(); }
+    else closeModal();
+  };
+  $("#modal-mask").addEventListener("click", e=>{ if(e.target.id==="modal-mask") closeModal(); });
+  document.addEventListener("keydown", e=>{
+    if(!$("#modal-mask").classList.contains("show")) return;
+    if(e.key==="Escape"){ closeModal(); return; }
+    if(e.key==="Enter" && e.target && e.target.tagName==="INPUT"){ e.preventDefault(); $("#modal-ok").click(); }
+  });
+  // 表格事件委托
+  $("#tbody").addEventListener("click", async e=>{
+    const b = e.target.closest("button"); const chk = e.target.closest(".row-check");
+    if(chk){ const id=chk.dataset.id; if(chk.checked) SELECTED.add(id); else SELECTED.delete(id); renderStats(); updateToolbar(); return; }
+    if(!b) return;
+    const id = b.dataset.id; if(!id) return;
+    const item = S.keys.find(k=>k.id===id); if(!item) return;
+    if(b.classList.contains("act-query")) runQuery([item]);
+    else if(b.classList.contains("act-probe")) runProbe([item]);
+    else if(b.classList.contains("act-del")){
+      if(!confirm(T("confirm.delete", item.name || maskKey(item.key)))) return;
+      S.keys = S.keys.filter(k=>k.id!==id); delete S.results[id]; delete S.history[id];
+      SELECTED.delete(id); save(); renderAll();
+    }
+    else if(b.classList.contains("act-edit")) openEditModal(id);
+    else if(b.classList.contains("act-copy")){
+      try{ await navigator.clipboard.writeText(item.key); toast("已复制完整 Key"); }
+      catch(err){
+        const ta=document.createElement("textarea"); ta.value=item.key; document.body.appendChild(ta);
+        ta.select(); document.execCommand("copy"); ta.remove(); toast("已复制完整 Key");
+      }
+    }
+    else if(b.classList.contains("act-eye")){
+      S.settings.reveal = !S.settings.reveal; $("#set-reveal").checked = S.settings.reveal;
+      save(); renderTable();
+    }
+  });
+  // 用量
+  $("#chart-key").onchange = renderSpend;
+  $("#chart-range").onchange = renderSpend;
+  // 复制脚本按钮
+  $$("[data-copy]").forEach(b=> b.onclick = async()=>{
+    const txt = $(b.dataset.copy).textContent;
+    try{ await navigator.clipboard.writeText(txt); toast("已复制"); }
+    catch(e){ toast("复制失败，请手动选中"); }
+  });
+  window.addEventListener("resize", ()=>{
+    renderSpend();
+    if(S.usage) drawBarChart($("#chart-usage-day"), S.usage.days, d=>d.tokens, cssVar("--accent"),
+      v=> v>=1e6?(v/1e6).toFixed(1)+"M":v>=1e3?(v/1e3).toFixed(0)+"K":String(Math.round(v)), 220);
+  });
+}
+function buildTokenSnippet(){
+  $("#snippet-token").textContent =
+`(function(){
+  var KEYS = ["userToken","token","access_token"];
+  function grab(v){
+    if(!v) return null;
+    try { var o = JSON.parse(v); if(o && typeof o === "object")
+      return o.token || o.value || o.access_token || o.userToken || null; } catch(e){}
+    return (typeof v === "string" && v.length > 20) ? v : null;
+  }
+  for (var i=0;i<KEYS.length;i++){
+    var t = grab(localStorage.getItem(KEYS[i]));
+    if (t) { copy(t); console.log("%c已复制用量 Token，回面板 Ctrl+V 即可","color:#3fb950;font-weight:bold"); return; }
+  }
+  for (var k in localStorage){
+    var t2 = grab(localStorage.getItem(k));
+    if (t2) { copy(t2); console.log("%c已复制用量 Token（来自 "+k+"）","color:#3fb950;font-weight:bold"); return; }
+  }
+  console.log("没找到 Token，请在 Application → Local Storage 里手动查看");
+})();`;
+}
+function buildMonthOptions(){
+  const sel = $("#usage-month"), now = new Date();
+  const opts = [];
+  for(let i=0;i<12;i++){
+    const d = new Date(now.getFullYear(), now.getMonth()-i, 1);
+    const v = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`;
+    opts.push(`<option value="${v}">${d.getFullYear()} 年 ${d.getMonth()+1} 月</option>`);
+  }
+  sel.innerHTML = opts.join("");
+}
+
+/* ---------------- 演示模式（?demo=1）---------------- */
+/* 塞一批假数据进去，方便截图、看界面、以及给贡献者预览。
+   全程不联网、不落盘，纯本地内存。 */
+let DEMO = false;
+function seedDemo(){
+  DEMO = true;
+  const now = Date.now(), day = 86400e3;
+  const mk = (name,key,tags,note)=>({id:uid(),name,key,tags,note,enabled:true});
+  S.keys = [
+    mk("主力号","sk-demo0000000000000000000000000001",["生产"],"公司账户"),
+    mk("备用 · 9月充值","sk-demo0000000000000000000000000002",["生产","备用"],"9 月充了 100"),
+    mk("客户A 专用","sk-demo0000000000000000000000000003",["客户A"],""),
+    mk("测试号","sk-demo0000000000000000000000000004",["测试"],"只在本地跑"),
+    mk("已吊销（旧）","sk-demo0000000000000000000000000005",[],"离职同事留下的"),
+    mk("海外账户","sk-demo0000000000000000000000000006",["海外"],"")
+  ];
+  const bal = (total,granted,topped,cur)=>({currency:cur,total,granted,topped});
+  const K = S.keys.map(k=>k.id);
+  const live = (n,ms)=>({ok:true,ms,models:Array(n).fill("m"),ts:now-40000});
+  S.results = {};
+  S.results[K[0]] = {status:"ok", ts:now-40000, via:"direct", isAvailable:true,
+    infos:[bal("128.40","8.40","120.00","CNY")], live:live(2,186)};
+  S.results[K[1]] = {status:"ok", ts:now-95000, via:"direct", isAvailable:true,
+    infos:[bal("12.60","2.60","10.00","CNY")], live:live(2,241)};
+  S.results[K[2]] = {status:"low", ts:now-120000, via:"direct", isAvailable:false,
+    infos:[bal("0.00","0.00","0.00","CNY")], live:live(2,203)};
+  S.results[K[3]] = {status:"ok", ts:now-300000, via:"relay", isAvailable:true,
+    infos:[bal("46.15","46.15","0.00","CNY")], live:live(4,164)};
+  S.results[K[4]] = {status:"invalid", ts:now-320000, via:"direct",
+    infos:[], error:"Authentication Fails, Your api key: ****0005 is invalid",
+    apiMsg:"Authentication Fails, Your api key: ****0005 is invalid (request_id: demo-4f2a)",
+    requestId:"demo-4f2a",
+    live:{ok:false,ms:158,error:"Authentication Fails, Your api key: ****0005 is invalid"}};
+  S.results[K[5]] = {status:"ratelimit", ts:now-400000, via:"direct", infos:[],
+    error:"请求过于频繁，请稍后再试", live:{ok:false,ms:96,error:"HTTP 429"}};
+
+  // 余额快照：主力号 30 天，中间有一次充值
+  const hist = [];
+  let v = 60;
+  for(let i=30;i>=0;i--){
+    v += (Math.random()*2.2 - 1.9);          // 慢慢消耗
+    if(i===12) v += 100;                      // 中间充过 100
+    hist.push({ t: now - i*day, c:"CNY", v: Math.max(0, +v.toFixed(2)), g:0, p:0 });
+  }
+  S.history = { [K[0]]: hist };
+
+  // 官方用量：当月按天
+  const days = [], models = [
+    {model:"deepseek-v4-flash",label:"V4 Flash",requests:0,tokens:0,hit:0,miss:0,resp:0,prompt:0,cost:0},
+    {model:"deepseek-v4-pro",  label:"V4 Pro",  requests:0,tokens:0,hit:0,miss:0,resp:0,prompt:0,cost:0}
+  ];
+  const today = new Date();
+  for(let d=1; d<=today.getDate(); d++){
+    const date = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+    const req = Math.floor(20 + Math.random()*160);
+    const hit = Math.floor(req*900 + Math.random()*90000);
+    const miss= Math.floor(req*260 + Math.random()*40000);
+    const resp= Math.floor(req*90  + Math.random()*20000);
+    const cost= +(miss/1e6*2 + resp/1e6*8 + hit/1e6*0.2).toFixed(4);
+    days.push({date, requests:req, tokens:hit+miss+resp, hit, miss, resp,
+               prompt:0, cost});
+    models[0].requests += req; models[0].hit += hit; models[0].miss += miss;
+    models[0].resp += resp; models[0].cost += cost;
+  }
+  models[0].tokens = models[0].hit + models[0].miss + models[0].resp;
+  const total = {requests:0,tokens:0,hit:0,miss:0,resp:0,prompt:0,cost:0};
+  for(const m of models) for(const k of ["requests","tokens","hit","miss","resp","prompt","cost"]) total[k]+=m[k];
+  S.usage = { days, models: models.filter(m=>m.requests>0), total };
+  S.usageMeta = { month: today.getMonth()+1, year: today.getFullYear(), ts: now };
+  S.compare = [
+    { y: today.getFullYear(), m: today.getMonth()+1, tokens:total.tokens, requests:total.requests, cost:total.cost, hit:total.hit, miss:total.miss },
+    { y: today.getFullYear(), m: today.getMonth(),     tokens:Math.floor(total.tokens*0.82), requests:Math.floor(total.requests*0.8), cost:+(total.cost*0.86).toFixed(2), hit:Math.floor(total.hit*0.8), miss:Math.floor(total.miss*0.8) },
+    { y: today.getFullYear(), m: today.getMonth()-1 || 12, tokens:Math.floor(total.tokens*0.55), requests:Math.floor(total.requests*0.5), cost:+(total.cost*0.48).toFixed(2), hit:Math.floor(total.hit*0.5), miss:Math.floor(total.miss*0.5) }
+  ];
+  S.settings.warnThreshold = 20;
+  notify("warn",
+    "<b>演示模式</b>：界面上的 Key、余额、用量<b>全是编造的假数据</b>，" +
+    "不会联网、不会写入本机存储。刷新页面（不带 <code>?demo=1</code>）即可回到真实模式。");
+}
+
+/* ---------------- 桌面程序模式 ---------------- */
+/* 只有页面是被本机服务提供出来的时候，才有「退出程序」和「关窗自动退出」 */
+const SERVED_LOCALLY = location.protocol === "http:" &&
+  (location.hostname === "127.0.0.1" || location.hostname === "localhost");
+
+function initDesktopMode(){
+  if(!SERVED_LOCALLY) return;
+  const quit = $("#btn-quit");
+  if(quit){
+    quit.style.display = "";
+    quit.onclick = async ()=>{
+      if(!confirm("要退出 DeepSeek Key 面板吗？\n\n本地服务会一并关闭，这个页面随之失效。")) return;
+      try{ await fetch("/shutdown", { method:"POST" }); }catch(e){}
+      document.body.innerHTML =
+        `<div style="padding:80px 20px;text-align:center;color:var(--fg2);` +
+        `font:14px/1.7 'Segoe UI','Microsoft YaHei',sans-serif">` +
+        `<div style="font-size:52px;line-height:1">🐋</div>` +
+        `<h2 style="font-weight:640;color:var(--fg);margin:14px 0 6px">程序已退出</h2>` +
+        `<p>本地服务已关闭，这个窗口可以关掉了。</p></div>`;
+    };
+  }
+  // 关窗 / 刷新时通知服务；刷新会在 3 秒宽限期内重新连上，不会误杀
+  const bye = ()=>{
+    try{ navigator.sendBeacon("/bye"); }
+    catch(e){ try{ fetch("/bye", { method:"POST", keepalive:true }); }catch(_e){} }
+  };
+  window.addEventListener("pagehide", bye);
+}
+
+/* ---------------- 重绘后自动重译 ----------------
+   动态生成的 HTML 里也有中文，而 applyLangToDom 只在启动和切语言时跑。
+   这里给所有渲染函数套一层：跑完自动重译一遍（英文模式下）。
+   幂等：已经是英文的文本节点查不到映射，不会被二次改写。 */
+function retranslate(){
+  if(LANG !== "en") return;
+  try{ applyLangToDom(document.body); }catch(e){}
+}
+(function wrapRenderers(){
+  ["renderTable","renderStats","renderUsage","renderSpend","renderCompare",
+   "renderBadges","renderEncState","renderTagFilter","renderChartKeyOptions"
+  ].forEach(function(n){
+    const fn = window[n];
+    if(typeof fn !== "function") return;
+    window[n] = function(){ const r = fn.apply(this, arguments); retranslate(); return r; };
+  });
+})();
+
+/* ---------------- 启动 ---------------- */
+(async function boot(){
+  // ?lang=en 可直接指定界面语言（也用于截图和分享）
+  const lp = new URLSearchParams(location.search).get("lang");
+  if(lp === "en" || lp === "zh"){
+    try{ const m = JSON.parse(localStorage.getItem(LS_META) || "{}");
+         if(m.settings) m.settings.lang = lp; else m.settings = { lang: lp };
+         localStorage.setItem(LS_META, JSON.stringify(m)); }catch(e){}
+  }
+  await load();
+  LANG = detectLang();
+  document.documentElement.lang = LANG === "en" ? "en" : "zh-CN";
+  await fileStoreInit();       // 本地数据文件优先（自动解密，无需密码）
+  if(/[?&]demo=1\b/.test(location.search)) seedDemo();
+  buildTokenSnippet();
+  buildMonthOptions();
+  applySettingsToUI();
+  bindUI();
+  bindSettings();
+  setupAutoRefresh();
+  renderAll();
+  renderUsage();
+  await detectRelay(true);
+  renderBadges();
+  renderUsage();
+  if(S.settings.mode!=="direct" && !RELAY_OK){
+    notify("info",
+      `<b>提示：</b>余额查询不受影响（<code>api.deepseek.com</code> 支持跨域，本页直连即可）。`+
+      `但 <b>官方用量接口</b>没有 CORS 头，浏览器无法直连 —— 需要查 Token/费用时，`+
+      `双击 <code>启动面板.cmd</code> 起一个本地中转（只监听 127.0.0.1）。`+
+      ` <a href="#" id="notice-goto">去设置页看看</a>`);
+    const g = $("#notice-goto");
+    if(g) g.onclick = e=>{ e.preventDefault(); switchTab("settings"); };
+  }
+  updateStoreInfo();
+  initDesktopMode();
+  applyLangToDom(document.body);   // 静态标记的翻译
+  renderAll();
+  // 支持带锚点打开：#usage / #settings
+  const initial = (location.hash || "").replace("#", "");
+  if(TABS.indexOf(initial) >= 0) switchTab(initial, true);
+  window.addEventListener("hashchange", ()=>{
+    const h = (location.hash || "").replace("#", "");
+    if(TABS.indexOf(h) >= 0) switchTab(h, true);
+  });
+  // 关页面前把待写的加密数据落盘
+  window.addEventListener("pagehide", ()=>{ flushSave(); });
+})();
+</script>
+</body>
+</html>
